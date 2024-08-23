@@ -6,6 +6,11 @@ class ClusterSet {
 	private Cluster C[]; // vettore di Cluster.
 	private int lastClusterIndex = 0; // indice dell'ultimo Cluster aggiunto.
 
+	/**
+	 * crea un nuovo insieme di k Cluster.
+	 * 
+	 * @param k numero di Cluster contenuti in Clusterset.
+	 */
 	ClusterSet(int k) {
 		C = new Cluster[k];
 	}
@@ -15,7 +20,7 @@ class ClusterSet {
 	 * 
 	 * @param c cluster da agginugere.
 	 */
-	private void add(Cluster c) {
+	void add(Cluster c) {
 		for (int j = 0; j < lastClusterIndex; j++)
 			if (c == C[j]) // to avoid duplicates
 				return;
@@ -23,6 +28,12 @@ class ClusterSet {
 		lastClusterIndex++;
 	}
 
+	/**
+	 * restituisce il Cluster all'indice specificato.
+	 *
+	 * @param i l'indice del Cluster da restituire.
+	 * @return il Cluster all'indice specificato.
+	 */
 	Cluster get(int i) {
 		return C[i];
 	}
@@ -31,15 +42,15 @@ class ClusterSet {
 	 * determina la coppia di cluster più simili e li fonde in unico cluster; crea
 	 * una nuova istanza di ClusterSet che contiene tutti i cluster dell’oggetto
 	 * this a meno dei due cluster fusi al posto dei quali inserisce il cluster
-	 * risultante dalla fusione
+	 * risultante dalla fusione.
 	 * 
 	 * (nota bene l’oggetto ClusterSet risultante memorizza un numero di cluster che
 	 * è pari al numero di cluster memorizzato nell’oggetto this meno -1)
 	 * 
-	 * @param distance oggetto per il calcolo della distanza tra cluster
+	 * @param distance oggetto per il calcolo della distanza tra cluster.
 	 * @param data     oggetto istanza che rappresenta il dataset in cui si sta
-	 *                 calcolando l’oggetto istanza di ClusterSet
-	 * @return nuova istanza di ClusterSet
+	 *                 calcolando l’oggetto istanza di ClusterSet.
+	 * @return nuova istanza di ClusterSet.
 	 */
 	ClusterSet mergeClosestClusters(ClusterDistance distance, Data data) {
 		double minDistance = Double.MAX_VALUE;
@@ -69,6 +80,11 @@ class ClusterSet {
 		return newClusterSet;
 	}
 
+	/**
+	 * fornisce una rappresentazione stringa dell'oggetto ClusterSet.
+	 *
+	 * @return una stringa che rappresenta l'oggetto ClusterSet.
+	 */
 	public String toString() {
 		String str = "";
 		for (int i = 0; i < C.length; i++) {
@@ -81,6 +97,13 @@ class ClusterSet {
 
 	}
 
+	/**
+	 * fornisce una rappresentazione stringa dell'oggetto ClusterSet, dove i cluster
+	 * contengono esplicitamente i vettori Example.
+	 * 
+	 * @param data vettore Data dove sono contenuti i vettori Example.
+	 * @return na stringa che rappresenta l'oggetto ClusterSet.
+	 */
 	String toString(Data data) {
 		String str = "";
 		for (int i = 0; i < C.length; i++) {
