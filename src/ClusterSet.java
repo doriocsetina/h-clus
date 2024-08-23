@@ -35,7 +35,7 @@ class ClusterSet {
 	 * @return nuova istanza di ClusterSet
 	 */
 	ClusterSet mergeClosestClusters(ClusterDistance distance, Data data) {
-
+		data.distance();
 	}
 
 	public String toString() {

@@ -2,7 +2,7 @@ public class Example {
     private Double[] example; // vettore di valori reali
 
     /**
-     * inizializza example come vettore di dimensione lenght
+     * inizializza example come vettore di dimensione length
      * 
      * @param lenght dimensione dell'esempio
      */
