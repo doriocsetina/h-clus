@@ -1,3 +1,7 @@
+package clustering;
+
+import data.Data;
+
 public class Dendrogram {
     private ClusterSet tree[]; // modella il dendrogramma
 
@@ -40,10 +44,10 @@ public class Dendrogram {
     }
 
     /**
-	 * fornisce una rappresentazione stringa dell'oggetto Dendrogram.
-	 *
-	 * @return una stringa che rappresenta l'oggetto Dendrogram.
-	 */
+     * fornisce una rappresentazione stringa dell'oggetto Dendrogram.
+     *
+     * @return una stringa che rappresenta l'oggetto Dendrogram.
+     */
     public String toString() {
         String v = "";
         for (int i = 0; i < tree.length; i++)
@@ -52,12 +56,12 @@ public class Dendrogram {
     }
 
     /**
-	 * fornisce una rappresentazione stringa dell'oggetto Dendrogram, dove i cluster
-	 * contengono esplicitamente i vettori Example.
-	 * 
-	 * @param data vettore Data dove sono contenuti i vettori Example.
-	 * @return na stringa che rappresenta l'oggetto Dendrogram.
-	 */
+     * fornisce una rappresentazione stringa dell'oggetto Dendrogram, dove i cluster
+     * contengono esplicitamente i vettori Example.
+     * 
+     * @param data vettore Data dove sono contenuti i vettori Example.
+     * @return na stringa che rappresenta l'oggetto Dendrogram.
+     */
     String toString(Data data) {
         String v = "";
         for (int i = 0; i < tree.length; i++)

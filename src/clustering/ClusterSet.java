@@ -1,3 +1,8 @@
+package clustering;
+
+import data.Data;
+import distance.ClusterDistance;
+
 /**
  * classe che rappresente un insieme di Cluster.
  */
@@ -25,7 +30,12 @@ class ClusterSet {
 			if (c == C[j]) // to avoid duplicates
 				return;
 		C[lastClusterIndex] = c;
+
 		lastClusterIndex++;
+	}
+
+	int getLength() {
+		return C.length;
 	}
 
 	/**
@@ -60,6 +70,7 @@ class ClusterSet {
 				if (i == j) {
 					continue;
 				}
+
 				Double d = distance.distance(this.get(i), this.get(j), data);
 				if (minDistance > d) {
 					minDistance = d;
@@ -71,7 +82,7 @@ class ClusterSet {
 
 		ClusterSet newClusterSet = new ClusterSet(lastClusterIndex - 1);
 		for (int i = 0; i < lastClusterIndex; i++) {
-			if (i != firstCluster || i != secondCluster) {
+			if (i != firstCluster && i != secondCluster) {
 				newClusterSet.add(this.get(i));
 			}
 		}

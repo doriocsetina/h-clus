@@ -1,16 +1,19 @@
+package clustering;
+
+import data.Data;
 
 /**
  * classe che rappresenta il cluster dei vettori Example, salvando
  * all'interno di clusteredData[] le posizioni dei vettori Example all'interno
  * del vettore Data che fanno parte del Cluster.
  */
-class Cluster {
+public class Cluster {
 
 	/**
 	 * Collezione delle posizioni dei vettori Example nella classe
 	 * Data, che rappresentano i vettori Example contenuti nel Cluster
 	 */
-	private Integer clusteredData[] = new Integer[0]; 
+	private Integer clusteredData[] = new Integer[0];
 
 	/**
 	 * aggiunge un vettore Example al cluster.
@@ -32,7 +35,7 @@ class Cluster {
 	 * 
 	 * @return il numero di elementi del Cluster.
 	 */
-	int getSize() {
+	public int getSize() {
 		return clusteredData.length;
 	}
 
@@ -42,7 +45,7 @@ class Cluster {
 	 * @param i indice di un vettore Example memorizzato in Cluster.
 	 * @return la posizione del vettore Example all'interno di Data.
 	 */
-	int getElement(int i) {
+	public int getElement(int i) {
 		return clusteredData[i];
 	}
 
@@ -62,7 +65,8 @@ class Cluster {
 	 * crea un nuovo Cluster che è la fusione dei due Cluster pre-esistenti.
 	 * 
 	 * @param c Cluster che verrà fuso a this.
-	 * @return un nuovo Cluster contente gli oggetti di entrambi i Cluster precedenti.
+	 * @return un nuovo Cluster contente gli oggetti di entrambi i Cluster
+	 *         precedenti.
 	 */
 	Cluster mergeCluster(Cluster c) {
 		Cluster newC = new Cluster();

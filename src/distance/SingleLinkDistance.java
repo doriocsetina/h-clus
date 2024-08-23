@@ -1,3 +1,9 @@
+package distance;
+
+import clustering.Cluster;
+import data.Data;
+import data.Example;
+
 /**
  * implementazione della interfaccia ClusterDistance che utilizza il metodo
  * single-link.

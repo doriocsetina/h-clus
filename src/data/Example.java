@@ -1,3 +1,5 @@
+package data;
+
 public class Example {
     private Double[] example; // vettore di valori reali
 

@@ -1,3 +1,9 @@
+package distance;
+
+import clustering.Cluster;
+import data.Data;
+import data.Example;
+
 /**
  * implementazione dell'interfaccia ClusterDistance che utilizza il metodo
  * average-link.

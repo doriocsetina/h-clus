@@ -1,8 +1,13 @@
+package clustering;
+import data.Data;
+import distance.ClusterDistance;
+
 /**
- * classe responsabile per l'implementazione dell'algoritmo di clustering gerarchico.
+ * classe responsabile per l'implementazione dell'algoritmo di clustering
+ * gerarchico.
  */
 
-class HierachicalClusterMiner {
+public class HierachicalClusterMiner {
 
 	private Dendrogram dendrogram; // dendrogramma che rappresenta la struttura gerarchicha dei cluster.
 
@@ -11,7 +16,7 @@ class HierachicalClusterMiner {
 	 * 
 	 * @param depth profondità del dendrogramma.
 	 */
-	HierachicalClusterMiner(int depth) {
+	public HierachicalClusterMiner(int depth) {
 		dendrogram = new Dendrogram(depth);
 
 	}
@@ -31,7 +36,7 @@ class HierachicalClusterMiner {
 	 * @param data
 	 * @param distance
 	 */
-	void mine(Data data, ClusterDistance distance) {
+	public void mine(Data data, ClusterDistance distance) {
 		ClusterSet firstClusterSet = new ClusterSet(data.getNumberOfExamples());
 
 		// crea livello 0 dove ogni cluster è un singolo dato.
@@ -46,7 +51,8 @@ class HierachicalClusterMiner {
 		// per ogni livello da 1 a depth forma un nuovo ClusterSet a partire da
 		// dendogram.getClusterSet(i - 1).
 		for (int i = 1; i < dendrogram.getDepth(); i++) {
-			dendrogram.setClusterSet(dendrogram.getClusterSet(i - 1).mergeClosestClusters(distance, data), i);
+			ClusterSet newClusterSet = dendrogram.getClusterSet(i - 1).mergeClosestClusters(distance, data);
+			dendrogram.setClusterSet(newClusterSet, i);
 		}
 	}
 
@@ -68,7 +74,7 @@ class HierachicalClusterMiner {
 	 * @param data vettore Data dove sono contenuti i vettori Example.
 	 * @return na stringa che rappresenta l'oggetto Dendrogram.
 	 */
-	String toString(Data data) {
+	public String toString(Data data) {
 		return dendrogram.toString(data);
 	}
 
