@@ -1,6 +1,6 @@
 
 /**
- * Questa classe rappresenta il cluster dei vettori Example, salvando
+ * classe che rappresenta il cluster dei vettori Example, salvando
  * all'interno di clusteredData[] le posizioni dei vettori Example all'interno
  * del vettore Data che fanno parte del Cluster.
  */
