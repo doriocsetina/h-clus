@@ -1,5 +1,9 @@
 package clustering;
 
+import java.util.Iterator;
+import java.util.Set;
+import java.util.TreeSet;
+
 import data.Data;
 
 /**
@@ -7,13 +11,23 @@ import data.Data;
  * all'interno di clusteredData[] le posizioni dei vettori Example all'interno
  * del vettore Data che fanno parte del Cluster.
  */
-public class Cluster {
+public class Cluster implements Iterable<Integer>, Cloneable {
 
 	/**
 	 * Collezione delle posizioni dei vettori Example nella classe
 	 * Data, che rappresentano i vettori Example contenuti nel Cluster
 	 */
-	private Integer clusteredData[] = new Integer[0];
+	private Set<Integer> clusteredData = new TreeSet<>();
+
+	/**
+	 * Restituisce un iteratore per i dati raggruppati.
+	 * 
+	 * @return un iteratore per l'insieme di dati raggruppati
+	 */
+	@Override
+	public Iterator<Integer> iterator() {
+		return clusteredData.iterator();
+	}
 
 	/**
 	 * aggiunge un vettore Example al cluster.
@@ -21,13 +35,7 @@ public class Cluster {
 	 * @param id posizione del vettore Example.
 	 */
 	void addData(int id) {
-		for (int i = 0; i < clusteredData.length; i++)
-			if (id == clusteredData[i])
-				return;
-		Integer clusteredDataTemp[] = new Integer[clusteredData.length + 1];
-		System.arraycopy(clusteredData, 0, clusteredDataTemp, 0, clusteredData.length);
-		clusteredData = clusteredDataTemp;
-		clusteredData[clusteredData.length - 1] = id;
+		clusteredData.add(id);
 	}
 
 	/**
@@ -36,7 +44,7 @@ public class Cluster {
 	 * @return il numero di elementi del Cluster.
 	 */
 	public int getSize() {
-		return clusteredData.length;
+		return clusteredData.size();
 	}
 
 	/**
@@ -45,20 +53,23 @@ public class Cluster {
 	 * @param i indice di un vettore Example memorizzato in Cluster.
 	 * @return la posizione del vettore Example all'interno di Data.
 	 */
-	public int getElement(int i) {
-		return clusteredData[i];
-	}
+
+	// public int getElement(int i) {
+	// return clusteredData[i];
+	// }
 
 	/**
 	 * crea una copia del cluster corrente.
 	 * 
 	 * @return hard copy dell'oggetto Cluster.
 	 */
-	Cluster createACopy() {
-		Cluster copyC = new Cluster();
-		for (int i = 0; i < getSize(); i++)
-			copyC.addData(clusteredData[i]);
-		return copyC;
+	@Override
+	public Object clone() {
+		Cluster newCluster = new Cluster();
+		for (Integer index : this) {
+			newCluster.addData(index);
+		}
+		return newCluster;
 	}
 
 	/**
@@ -70,10 +81,10 @@ public class Cluster {
 	 */
 	Cluster mergeCluster(Cluster c) {
 		Cluster newC = new Cluster();
-		for (int i = 0; i < getSize(); i++)
-			newC.addData(clusteredData[i]);
-		for (int i = 0; i < c.getSize(); i++)
-			newC.addData(c.clusteredData[i]);
+		for (Integer index : this)
+			newC.addData(index);
+		for (Integer index : c)
+			newC.addData(index);
 		return newC;
 
 	}
@@ -85,9 +96,13 @@ public class Cluster {
 	 */
 	public String toString() {
 		String str = "";
-		for (int i = 0; i < clusteredData.length - 1; i++)
-			str += clusteredData[i] + ",";
-		str += clusteredData[clusteredData.length - 1];
+		Iterator<Integer> iterator = clusteredData.iterator();
+		while (iterator.hasNext()) {
+			str += iterator.next();
+			if (iterator.hasNext()) {
+				str += ",";
+			}
+		}
 		return str;
 	}
 
@@ -101,8 +116,9 @@ public class Cluster {
 	String toString(Data data) {
 		String str = "";
 
-		for (int i = 0; i < clusteredData.length; i++)
-			str += "<" + data.getExample(clusteredData[i]) + ">";
+		for (Integer index : clusteredData) {
+			str += "<" + data.getExample(index) + ">";
+		}
 
 		return str;
 

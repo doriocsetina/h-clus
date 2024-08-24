@@ -1,25 +1,42 @@
 package data;
 
-public class Example {
-    private Double[] example; // vettore di valori reali
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+/**
+ * Classe che rappresenta il singolo esempio, un vettore costituito di un numero
+ * variabile di valori reali.
+ */
+public class Example implements Iterable<Double> {
+    private List<Double> example; // vettore di valori reali
 
     /**
-     * inizializza example come vettore di dimensione length
+     * inizializza example come vettore di dimensione length.
      * 
-     * @param lenght dimensione dell'esempio
+     * @param lenght dimensione dell'esempio.
      */
-    public Example(int length) {
-        this.example = new Double[length];
+    public Example() {
+        example = new LinkedList<>();
     }
 
     /**
-     * modifica example inserendo v in posizione index
+     * restituisce un iteratore per la LinkedList di Example.
      * 
-     * @param index posizione del valore
-     * @param v     valore
+     * @return un Iterator per gli elementi Double nella LinkedList di Example.
      */
-    public void set(int index, Double v) {
-        this.example[index] = v;
+    public Iterator<Double> iterator() {
+        return example.iterator();
+    }
+
+    /**
+     * modifica example inserendo v in posizione index.
+     * 
+     * @param index posizione del valore.
+     * @param v     valore.
+     */
+    public void add(Double v) {
+        example.add(v);
     }
 
     /**
@@ -29,11 +46,11 @@ public class Example {
      * @return valore memorizzato in example[index]
      */
     public Double get(int index) {
-        return this.example[index];
+        return example.get(index);
     }
 
     public int getLength() {
-        return example.length;
+        return example.size();
     }
 
     /**
@@ -44,8 +61,8 @@ public class Example {
      */
     public double distance(Example newE) {
         double sum = 0;
-        for (int i = 0; i < this.example.length; i++) {
-            sum += Math.pow(this.example[i] - newE.get(i), 2);
+        for (int i = 0; i < example.size(); i++) {
+            sum += Math.pow(example.get(i) - newE.get(i), 2);
         }
         return sum;
     }
@@ -57,9 +74,10 @@ public class Example {
      */
     public String toString() {
         String string = "[";
-        for (int i = 0; i < example.length; i++) {
-            string += example[i];
-            if (i < example.length - 1) {
+        Iterator<Double> iterator = example.iterator();
+        while (iterator.hasNext()) {
+            string += iterator.next();
+            if (iterator.hasNext()) {
                 string += ", ";
             }
         }

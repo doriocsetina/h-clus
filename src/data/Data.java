@@ -1,45 +1,55 @@
 package data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import clustering.exceptions.InvalidSizeException;
 
+/**
+ * Classe che rappresenta il dataset su cui verrà operato il mining.
+ * Contiene i vettori Example, il numero totale di istanze Example e il metodo
+ * per calcolarne la distanza.
+ */
 public class Data {
-	private Example data[]; // rappresenta il dataset
+	private List<Example> data = new ArrayList<>(); // rappresenta il dataset
 	private int numberOfExamples; // rappresenta il numero di esempi nel dataset
 
+	/**
+	 * Costruttore con vettori Exampes hard-coded.
+	 */
 	public Data() {
 
 		// data
 
-		data = new Example[5];
-		Example e = new Example(3);
-		e.set(0, 1.0);
-		e.set(1, 2.0);
-		e.set(2, 0.0);
-		data[0] = e;
+		Example e = new Example();
+		e.add(1.0);
+		e.add(2.0);
+		e.add(0.0);
+		data.add(e);
 
-		e = new Example(3);
-		e.set(0, 0.0);
-		e.set(1, 1.0);
-		e.set(2, -1.0);
-		data[1] = e;
+		e = new Example();
+		e.add(0.0);
+		e.add(1.0);
+		e.add(-1.0);
+		data.add(e);
 
-		e = new Example(3);
-		e.set(0, 1.0);
-		e.set(1, 3.0);
-		e.set(2, 5.0);
-		data[2] = e;
+		e = new Example();
+		e.add(1.0);
+		e.add(3.0);
+		e.add(5.0);
+		data.add(e);
 
-		e = new Example(3);
-		e.set(0, 1.0);
-		e.set(1, 3.0);
-		e.set(2, 4.0);
-		data[3] = e;
+		e = new Example();
+		e.add(1.0);
+		e.add(3.0);
+		e.add(4.0);
+		data.add(e);
 
-		e = new Example(3);
-		e.set(0, 2.0);
-		e.set(1, 2.0);
-		e.set(2, 0.0);
-		data[4] = e;
+		e = new Example();
+		e.add(2.0);
+		e.add(2.0);
+		e.add(0.0);
+		data.add(e);
 
 		// numberOfExamples
 		numberOfExamples = 5;
@@ -62,7 +72,7 @@ public class Data {
 	 * @return l'esempio memorizzato in data[exampleIndex]
 	 */
 	public Example getExample(int exampleIndex) {
-		return this.data[exampleIndex];
+		return data.get(exampleIndex);
 	}
 
 	/**
@@ -94,9 +104,11 @@ public class Data {
 	 */
 	public String toString() {
 		String string = "";
-		for (int i = 0; i < this.numberOfExamples; i++) {
-			string += i + ":" + this.getExample(i) + "\n";
+		for (Example e : data) {
+			int i = 0;
+			string += i++ + ":" + e + "\n";
 		}
+
 		return string;
 	}
 

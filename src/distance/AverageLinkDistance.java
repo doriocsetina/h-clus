@@ -18,19 +18,20 @@ public class AverageLinkDistance implements ClusterDistance {
      * 
      * @param c1 il primo cluster.
      * @param c2 il secondo cluster.
-     * @param d vettore Data contenente i vettori Example. 
+     * @param d  vettore Data contenente i vettori Example.
      * @return la distanza average-link tra i due Cluster.
      */
     public double distance(Cluster c1, Cluster c2, Data d) {
         double sum = 0;
 
-        for (int i = 0; i < c1.getSize(); i++) {
-            Example e1 = d.getExample(c1.getElement(i));
-            for (int j = 0; j < c2.getSize(); j++) {
-                double distance = e1.distance(d.getExample(c2.getElement(j)));
+        for (Integer index1 : c1) {
+            Example e1 = d.getExample(index1);
+            for (Integer index2 : c2) {
+                double distance = e1.distance(d.getExample(index2));
                 sum += distance;
             }
         }
+
         return sum / (c1.getSize() * c2.getSize());
     }
 }
