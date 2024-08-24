@@ -129,9 +129,11 @@ public class Keyboard {
 
 	// ************* Reading Section *********************************
 
-	// -----------------------------------------------------------------
-	// Returns a string read from standard input.
-	// -----------------------------------------------------------------
+	/**
+	 * Returns a string read from standard input.
+	 * 
+	 * @return the string from standard input.
+	 */
 	public static String readString() {
 		String str;
 
@@ -147,10 +149,11 @@ public class Keyboard {
 		return str;
 	}
 
-	// -----------------------------------------------------------------
-	// Returns a space-delimited substring (a word) read from
-	// standard input.
-	// -----------------------------------------------------------------
+	/**
+	 * Returns a space-delimited substring (a word) read from standard input.
+	 * 
+	 * @return
+	 */
 	public static String readWord() {
 		String token;
 		try {
@@ -162,9 +165,11 @@ public class Keyboard {
 		return token;
 	}
 
-	// -----------------------------------------------------------------
-	// Returns a boolean read from standard input.
-	// -----------------------------------------------------------------
+	/**
+	 * Returns a boolean read from standard input.
+	 * 
+	 * @return
+	 */
 	public static boolean readBoolean() {
 		String token = getNextToken();
 		boolean bool;
@@ -184,9 +189,11 @@ public class Keyboard {
 		return bool;
 	}
 
-	// -----------------------------------------------------------------
-	// Returns a character read from standard input.
-	// -----------------------------------------------------------------
+	/**
+	 * Returns a character read from standard input.
+	 * 
+	 * @return
+	 */
 	public static char readChar() {
 		String token = getNextToken(false);
 		char value;
@@ -204,9 +211,11 @@ public class Keyboard {
 		return value;
 	}
 
-	// -----------------------------------------------------------------
-	// Returns an integer read from standard input.
-	// -----------------------------------------------------------------
+	/**
+	 * Returns an integer read from standard input.
+	 * 
+	 * @return
+	 */
 	public static int readInt() {
 		String token = getNextToken();
 		int value;
@@ -219,9 +228,11 @@ public class Keyboard {
 		return value;
 	}
 
-	// -----------------------------------------------------------------
-	// Returns a long integer read from standard input.
-	// -----------------------------------------------------------------
+	/**
+	 * Returns a long integer read from standard input.
+	 * 
+	 * @return
+	 */
 	public static long readLong() {
 		String token = getNextToken();
 		long value;
@@ -234,9 +245,11 @@ public class Keyboard {
 		return value;
 	}
 
-	// -----------------------------------------------------------------
-	// Returns a float read from standard input.
-	// -----------------------------------------------------------------
+	/**
+	 * Returns a float read from standard input.
+	 * 
+	 * @return
+	 */
 	public static float readFloat() {
 		String token = getNextToken();
 		float value;
@@ -249,9 +262,11 @@ public class Keyboard {
 		return value;
 	}
 
-	// -----------------------------------------------------------------
-	// Returns a double read from standard input.
-	// -----------------------------------------------------------------
+	/**
+	 * Returns a double read from standard input.
+	 * 
+	 * @return
+	 */
 	public static double readDouble() {
 		String token = getNextToken();
 		double value;

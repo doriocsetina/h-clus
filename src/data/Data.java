@@ -1,5 +1,7 @@
 package data;
 
+import clustering.exceptions.InvalidSizeException;
+
 public class Data {
 	private Example data[]; // rappresenta il dataset
 	private int numberOfExamples; // rappresenta il numero di esempi nel dataset
@@ -70,10 +72,12 @@ public class Data {
 	 *         gli esempi memorizzati in data. Tale matrice va avvalorata usando il
 	 *         metodo distance di Example
 	 */
-	public double[][] distance() {
+	public double[][] distance() throws InvalidSizeException {
 		double[][] distance = new double[this.numberOfExamples][this.numberOfExamples];
 		for (int i = 0; i < numberOfExamples; i++) {
 			for (int j = 0; j < numberOfExamples; j++) {
+				if (this.getExample(i).getLength() != this.getExample(j).getLength())
+					throw new InvalidSizeException();
 				if (i < j) {
 					distance[i][j] = this.getExample(i).distance(this.getExample(j));
 				}
@@ -99,12 +103,16 @@ public class Data {
 	public static void main(String args[]) {
 		Data trainingSet = new Data();
 		System.out.println(trainingSet);
-		double[][] distancematrix = trainingSet.distance();
-		System.out.println("Distance matrix:\n");
-		for (int i = 0; i < distancematrix.length; i++) {
-			for (int j = 0; j < distancematrix.length; j++)
-				System.out.print(distancematrix[i][j] + "\t");
-			System.out.println("");
+		try {
+			double[][] distancematrix = trainingSet.distance();
+			System.out.println("Distance matrix:\n");
+			for (int i = 0; i < distancematrix.length; i++) {
+				for (int j = 0; j < distancematrix.length; j++)
+					System.out.print(distancematrix[i][j] + "\t");
+				System.out.println("");
+			}
+		} catch (InvalidSizeException e) {
+			System.err.println(e.getMessage());
 		}
 
 	}

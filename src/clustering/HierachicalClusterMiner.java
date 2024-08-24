@@ -1,4 +1,6 @@
 package clustering;
+
+import clustering.exceptions.InvalidDepthException;
 import data.Data;
 import distance.ClusterDistance;
 
@@ -36,10 +38,14 @@ public class HierachicalClusterMiner {
 	 * @param data
 	 * @param distance
 	 */
-	public void mine(Data data, ClusterDistance distance) {
-		ClusterSet firstClusterSet = new ClusterSet(data.getNumberOfExamples());
+	public void mine(Data data, ClusterDistance distance) throws InvalidDepthException {
+		int totalExamples = data.getNumberOfExamples();
+		if (totalExamples < dendrogram.getDepth()) {
+			throw new InvalidDepthException(dendrogram.getDepth(), totalExamples);
+		}
+		ClusterSet firstClusterSet = new ClusterSet(totalExamples);
 
-		// crea livello 0 dove ogni cluster è un singolo dato.
+		// crea livello 0 dove ogni cluster è un singolo dato.ss
 		for (int i = 0; i < data.getNumberOfExamples(); i++) {
 			Cluster singleCluster = new Cluster();
 			singleCluster.addData(i);

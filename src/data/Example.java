@@ -32,6 +32,10 @@ public class Example {
         return this.example[index];
     }
 
+    public int getLength() {
+        return example.length;
+    }
+
     /**
      * restituisce la distanza calcolata
      * 
