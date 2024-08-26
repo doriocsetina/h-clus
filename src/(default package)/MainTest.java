@@ -16,10 +16,18 @@ public class MainTest {
 		Data data = new Data();
 		System.out.println(data);
 		int k = 5;
-		System.out.println("Inserire profondità del dendrogramma: ");
+		System.out.print("Inserire profondità del dendrogramma: ");
 		k = Keyboard.readInt();
+		System.out.print("inserire il nome del file dove salvare l'oggetto: ");
+		String fileName = Keyboard.readString();
 		HierachicalClusterMiner clustering = new HierachicalClusterMiner(k);
 
+		try {
+			clustering.save(fileName);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		System.out.println("Single link distance");
 		ClusterDistance distance = new SingleLinkDistance();
 		try {

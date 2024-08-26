@@ -1,5 +1,13 @@
 package clustering;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
 import clustering.exceptions.InvalidDepthException;
 import data.Data;
 import distance.ClusterDistance;
@@ -9,7 +17,7 @@ import distance.ClusterDistance;
  * gerarchico.
  */
 
-public class HierachicalClusterMiner {
+public class HierachicalClusterMiner implements Serializable {
 
 	private Dendrogram dendrogram; // dendrogramma che rappresenta la struttura gerarchicha dei cluster.
 
@@ -20,6 +28,22 @@ public class HierachicalClusterMiner {
 	 */
 	public HierachicalClusterMiner(int depth) {
 		dendrogram = new Dendrogram(depth);
+
+	}
+
+	public static HierachicalClusterMiner loadHierachicalClusterMiner(String filename)
+			throws FileNotFoundException, IOException, ClassNotFoundException {
+		FileInputStream inFile = new FileInputStream(filename);
+		try (ObjectInputStream inStream = new ObjectInputStream(inFile)) {
+			return (HierachicalClusterMiner) inStream.readObject();
+		}
+	}
+
+	public void save(String fileName) throws FileNotFoundException, IOException {
+		FileOutputStream outFile = new FileOutputStream(fileName);
+		try (ObjectOutputStream outStream = new ObjectOutputStream(outFile)) {
+			outStream.writeObject(this);
+		}
 
 	}
 
