@@ -7,21 +7,43 @@ import database.exceptions.DatabaseConnectionException;
 import database.exceptions.EmptySetException;
 import database.exceptions.MissingNumberException;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class TableData {
     private DbAccess db;
 
-    TableData(DbAccess db) {
-        try {
-            db.initConnection();
-        } catch (DatabaseConnectionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+    public TableData(DbAccess db) {
+        this.db = db;
     }
 
-    List<Example> getDistinctTransactions(String table) throws SQLException, EmptySetException, MissingNumberException {
-        return new LinkedList<>();
+    public List<Example> getDistinctTransactions(String table)
+            throws SQLException, EmptySetException, MissingNumberException {
+        /* crea la query */
+        String queryString = "SELECT * FROM " + table;
+
+        List<Example> examples = new LinkedList<Example>();
+
+        try (PreparedStatement preparedStatement = db.getConnection().prepareStatement(queryString)) {
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                int i = 1;
+
+                Example example = new Example();
+                example.add(resultSet.getDouble(i++));
+                example.add(resultSet.getDouble(i++));
+                example.add(resultSet.getDouble(i++));
+                examples.add(example);
+            }
+
+        } catch (DatabaseConnectionException e) {
+            e.printStackTrace();
+        }
+        if (examples.isEmpty())
+            throw new EmptySetException();
+        return examples;
     }
 }

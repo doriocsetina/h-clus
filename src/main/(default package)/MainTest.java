@@ -13,11 +13,14 @@ public class MainTest {
 	 */
 	public static void main(String[] args) {
 
-		Data data = new Data();
+		Data data = new Data("exampleTab");
 		System.out.println(data);
 		int k = 5;
 		System.out.print("Inserire profondità del dendrogramma: ");
 		k = Keyboard.readInt();
+
+		// serialization
+
 		System.out.print("inserire il nome del file dove salvare l'oggetto: ");
 		String fileName = Keyboard.readString();
 		HierachicalClusterMiner clustering = new HierachicalClusterMiner(k);

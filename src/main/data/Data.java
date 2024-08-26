@@ -1,9 +1,14 @@
 package data;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import clustering.exceptions.InvalidSizeException;
+import database.DbAccess;
+import database.TableData;
+import database.exceptions.EmptySetException;
+import database.exceptions.MissingNumberException;
 
 /**
  * Classe che rappresenta il dataset su cui verrà operato il mining.
@@ -17,42 +22,20 @@ public class Data {
 	/**
 	 * Costruttore con vettori Exampes hard-coded.
 	 */
-	public Data() {
+	public Data(String tableName) {
 
 		// data
+		DbAccess db = new DbAccess();
+		TableData tableData = new TableData(db);
 
-		Example e = new Example();
-		e.add(1.0);
-		e.add(2.0);
-		e.add(0.0);
-		data.add(e);
-
-		e = new Example();
-		e.add(0.0);
-		e.add(1.0);
-		e.add(-1.0);
-		data.add(e);
-
-		e = new Example();
-		e.add(1.0);
-		e.add(3.0);
-		e.add(5.0);
-		data.add(e);
-
-		e = new Example();
-		e.add(1.0);
-		e.add(3.0);
-		e.add(4.0);
-		data.add(e);
-
-		e = new Example();
-		e.add(2.0);
-		e.add(2.0);
-		e.add(0.0);
-		data.add(e);
+		try {
+			this.data = tableData.getDistinctTransactions(tableName);
+		} catch (SQLException | EmptySetException | MissingNumberException e) {
+			e.printStackTrace();
+		}
 
 		// numberOfExamples
-		numberOfExamples = 5;
+		numberOfExamples = data.size();
 
 	}
 
@@ -113,7 +96,7 @@ public class Data {
 	}
 
 	public static void main(String args[]) {
-		Data trainingSet = new Data();
+		Data trainingSet = new Data("exampleTab");
 		System.out.println(trainingSet);
 		try {
 			double[][] distancematrix = trainingSet.distance();
