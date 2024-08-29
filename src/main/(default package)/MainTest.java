@@ -1,9 +1,9 @@
-import data.Data;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
 
-import clustering.HierachicalClusterMiner;
-import clustering.exceptions.InvalidDepthException;
-import clustering.exceptions.InvalidSizeException;
-import distance.*;
 import util.Keyboard;
 
 public class MainTest {
@@ -11,60 +11,104 @@ public class MainTest {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	private ObjectOutputStream out;
+	private ObjectInputStream in; // stream con richieste del client
 
-		Data data = new Data("exampleTab");
-		System.out.println(data);
-		int k = 5;
-		System.out.print("Inserire profondità del dendrogramma: ");
-		k = Keyboard.readInt();
+	public MainTest(String ip, int port) throws IOException {
+		InetAddress addr = InetAddress.getByName(ip); // ip
+		System.out.println("addr = " + addr);
+		Socket socket = new Socket(addr, port); // Port
+		System.out.println(socket);
 
-		// serialization
+		out = new ObjectOutputStream(socket.getOutputStream());
 
-		System.out.print("inserire il nome del file dove salvare l'oggetto: ");
+		in = new ObjectInputStream(socket.getInputStream());
+		 // stream con richieste del client
+	}
+
+	private int menu() {
+		int answer;
+		System.out.println("Scegli una opzione");
+		do {
+			System.out.println("(1) Carica Dendrogramma da File");
+			System.out.println("(2) Apprendi Dendrogramma da Database");
+			System.out.print("Risposta:");
+			answer = Keyboard.readInt();
+		} while (answer <= 0 || answer > 2);
+		return answer;
+
+	}
+
+	private void loadDataOnServer() throws IOException, ClassNotFoundException {
+		boolean flag = false;
+		do {
+			System.out.println("Nome tabella:");
+			String tableName = Keyboard.readString();
+			out.writeObject(0);
+			System.out.println("DEBUG: ho inviato il codice 0;");
+			out.writeObject(tableName);
+			String risposta = (String) (in.readObject());
+			if (risposta.equals("OK"))
+				flag = true;
+			else
+				System.out.println(risposta);
+
+		} while (flag == false);
+	}
+
+	private void loadDedrogramFromFileOnServer() throws IOException, ClassNotFoundException {
+		System.out.println("Inserire il nome dell'archivio (comprensivo di estensione):");
 		String fileName = Keyboard.readString();
-		HierachicalClusterMiner clustering = new HierachicalClusterMiner(k);
 
-		try {
-			clustering.save(fileName);
+		out.writeObject(1);
+		out.writeObject(fileName);
+		String risposta = (String) (in.readObject());
+		if (risposta.equals("OK"))
+			System.out.println(in.readObject()); // stampo il dendrogramma che il server mi sta inviando
+		else
+			System.out.println(risposta); // stampo il messaggio di errore
+	}
 
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		System.out.println("Single link distance");
-		ClusterDistance distance = new SingleLinkDistance();
+	private void mineDedrogramOnServer() throws IOException, ClassNotFoundException {
+
+		out.writeObject(2);
+		System.out.println("Introdurre la profondità del dendrogramma");
+		int depth = Keyboard.readInt();
+		out.writeObject(depth);
+		int dType = -1;
+		do {
+			System.out.println("Distanza: single-link (1), average-link (2):");
+			dType = Keyboard.readInt();
+		} while (dType <= 0 || dType > 2);
+		out.writeObject(dType);
+
+		String risposta = (String) (in.readObject());
+		if (risposta.equals("OK")) {
+			System.out.println(in.readObject()); // stampo il dendrogramma che il server mi sta inviando
+			System.out.println("Inserire il nome dell'archivio (comprensivo di estensione):");
+			String fileName = Keyboard.readString();
+			out.writeObject(fileName);
+		} else
+			System.out.println(risposta); // stampo il messaggio di errore
+	}
+
+	public static void main(String[] args) {
+		String ip = args[0];
+		int port = Integer.parseInt(args[1]);
+		MainTest main = null;
 		try {
-			double[][] distancematrix = data.distance();
-			System.out.println("Distance matrix:\n");
-			for (int i = 0; i < distancematrix.length; i++) {
-				for (int j = 0; j < distancematrix.length; j++)
-					System.out.print(distancematrix[i][j] + "\t");
-				System.out.println("");
-			}
-		} catch (InvalidSizeException e) {
-			System.err.println(e.getMessage());
+			main = new MainTest(ip, port);
+			main.loadDataOnServer();
+			int scelta = main.menu();
+			if (scelta == 1)
+				main.loadDedrogramFromFileOnServer();
+			else
+				main.mineDedrogramOnServer();
+			main.out.writeObject(-1);
+		} catch (IOException | ClassNotFoundException e) {
+			System.out.println(e);
 			return;
 		}
-
-		try {
-			clustering.mine(data, distance);
-			System.out.println(clustering);
-			System.out.println(clustering.toString(data));
-
-		} catch (InvalidDepthException e) {
-			System.err.println(e.getMessage());
-		}
-
-		System.out.println("Average link distance");
-		distance = new AverageLinkDistance();
-		try {
-			clustering.mine(data, distance);
-			System.out.println(clustering);
-			System.out.println(clustering.toString(data));
-		} catch (InvalidDepthException e) {
-			System.err.println(e.getMessage());
-		}
-
 	}
 
 }

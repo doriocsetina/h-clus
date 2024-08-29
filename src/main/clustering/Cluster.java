@@ -3,6 +3,7 @@ package clustering;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
+import java.io.Serializable;
 
 import data.Data;
 
@@ -11,7 +12,7 @@ import data.Data;
  * all'interno di clusteredData[] le posizioni dei vettori Example all'interno
  * del vettore Data che fanno parte del Cluster.
  */
-public class Cluster implements Iterable<Integer>, Cloneable {
+public class Cluster implements Iterable<Integer>, Cloneable, Serializable {
 
 	/**
 	 * Collezione delle posizioni dei vettori Example nella classe

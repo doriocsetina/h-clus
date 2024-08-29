@@ -1,12 +1,14 @@
 package clustering;
 
+import java.io.Serializable;
+
 import data.Data;
 import distance.ClusterDistance;
 
 /**
  * classe che rappresente un insieme di Cluster.
  */
-class ClusterSet {
+class ClusterSet implements Serializable {
 
 	private Cluster C[]; // vettore di Cluster.
 	private int lastClusterIndex = 0; // indice dell'ultimo Cluster aggiunto.

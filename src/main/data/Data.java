@@ -10,6 +10,11 @@ import database.TableData;
 import database.exceptions.EmptySetException;
 import database.exceptions.MissingNumberException;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.nio.charset.StandardCharsets;
+import java.math.BigInteger;
+
 /**
  * Classe che rappresenta il dataset su cui verrà operato il mining.
  * Contiene i vettori Example, il numero totale di istanze Example e il metodo
@@ -20,7 +25,7 @@ public class Data {
 	private int numberOfExamples; // rappresenta il numero di esempi nel dataset
 
 	/**
-	 * Costruttore con vettori Exampes hard-coded.
+	 * Costruttore che popola data dal database.
 	 */
 	public Data(String tableName) {
 
@@ -58,6 +63,22 @@ public class Data {
 		return data.get(exampleIndex);
 	}
 
+	public String generateChecksum() {
+		try {
+			MessageDigest md = MessageDigest.getInstance("SHA-256");
+			String input = this.toString();
+			byte[] hash = md.digest(input.getBytes(StandardCharsets.UTF_8));
+			BigInteger number = new BigInteger(1, hash);
+			StringBuilder hexString = new StringBuilder(number.toString(16));
+			while (hexString.length() < 32) {
+				hexString.insert(0, '0');
+			}
+			return hexString.toString();
+		} catch (NoSuchAlgorithmException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	/**
 	 * restituisce la matrice triangolare superiore delle distanze
 	 * 
@@ -83,7 +104,7 @@ public class Data {
 	 * crea una stringa in cui memorizza gli esempi memorizzati nell’attributo data,
 	 * opportunamente enumerati. Restituisce tale stringa
 	 * 
-	 * @return stringa che modela lo stato dell'oggetto
+	 * @return stringa che modella lo stato dell'oggetto
 	 */
 	public String toString() {
 		String string = "";

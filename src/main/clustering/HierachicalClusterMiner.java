@@ -20,6 +20,7 @@ import distance.ClusterDistance;
 public class HierachicalClusterMiner implements Serializable {
 
 	private Dendrogram dendrogram; // dendrogramma che rappresenta la struttura gerarchicha dei cluster.
+	private String dataChecksum; // checksum dei dati su cui è stata operata l'operazione mine
 
 	/**
 	 * costruttore che inizializza il dendrogramma del miner.
@@ -31,7 +32,7 @@ public class HierachicalClusterMiner implements Serializable {
 
 	}
 
-	public static HierachicalClusterMiner loadHierachicalClusterMiner(String filename)
+	public static HierachicalClusterMiner load(String filename)
 			throws FileNotFoundException, IOException, ClassNotFoundException {
 		FileInputStream inFile = new FileInputStream(filename);
 		try (ObjectInputStream inStream = new ObjectInputStream(inFile)) {
@@ -84,6 +85,19 @@ public class HierachicalClusterMiner implements Serializable {
 			ClusterSet newClusterSet = dendrogram.getClusterSet(i - 1).mergeClosestClusters(distance, data);
 			dendrogram.setClusterSet(newClusterSet, i);
 		}
+		dataChecksum = data.generateChecksum();
+	}
+
+	/**
+	 * verifica che i dati usati nella corrente istanza di HierarchicalClusterMiner
+	 * siano gli stessi dati in input
+	 * 
+	 * @param data i dati che si desidera verificare
+	 * @return boolean di valore true se i dati in input sono gli stessi su cui è
+	 *         stato applicato il miner.
+	 */
+	public boolean validateData(Data data) {
+		return data.generateChecksum().equals(dataChecksum);
 	}
 
 	/**
@@ -105,7 +119,9 @@ public class HierachicalClusterMiner implements Serializable {
 	 * @return na stringa che rappresenta l'oggetto Dendrogram.
 	 */
 	public String toString(Data data) {
-		return dendrogram.toString(data);
+		if (validateData(data))
+			return dendrogram.toString(data);
+		return "ERRORE: il dendrogramma non è stato costruito su questi dati.";
 	}
 
 }
