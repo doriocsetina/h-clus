@@ -4,11 +4,16 @@ import java.io.Serializable;
 
 import data.Data;
 
+/**
+ * Classe che rappresenta il dendrogramma, a cui a ognuno dei livelli viene
+ * assegnato un insieme di cluster durante il processo di mining.
+ * 
+ */
 public class Dendrogram implements Serializable {
     private ClusterSet tree[]; // modella il dendrogramma
 
     /**
-     * crea un vettore di dimensione depth con cui inizializza tree.
+     * Crea un vettore di dimensione depth con cui inizializza tree.
      * 
      * @param depth profondità del dendrogramma.
      */
@@ -17,7 +22,7 @@ public class Dendrogram implements Serializable {
     }
 
     /**
-     * memorizza c nella posizione level di tree.
+     * Memorizza c nella posizione level di tree.
      * 
      * @param c     ClusterSet da memorizzare.
      * @param level posizione all'interno di tree in cui memorizzare c.
@@ -27,7 +32,7 @@ public class Dendrogram implements Serializable {
     }
 
     /**
-     * restituisce il ClusterSet al livello specificato.
+     * Restituisce il ClusterSet al livello specificato.
      * 
      * @param level livello del ClusterSet da restituire.
      * @return il ClusterSet al livello specifcato.
@@ -37,7 +42,7 @@ public class Dendrogram implements Serializable {
     }
 
     /**
-     * restituisce la profondità del dendrogramma (ossia la dimensione di tree).
+     * Restituisce la profondità del dendrogramma (ossia la dimensione di tree).
      * 
      * @return la dimensione del vettore tree.
      */
@@ -46,7 +51,7 @@ public class Dendrogram implements Serializable {
     }
 
     /**
-     * fornisce una rappresentazione stringa dell'oggetto Dendrogram.
+     * Fornisce una rappresentazione stringa dell'oggetto Dendrogram.
      *
      * @return una stringa che rappresenta l'oggetto Dendrogram.
      */
@@ -58,7 +63,7 @@ public class Dendrogram implements Serializable {
     }
 
     /**
-     * fornisce una rappresentazione stringa dell'oggetto Dendrogram, dove i cluster
+     * Fornisce una rappresentazione stringa dell'oggetto Dendrogram, dove i cluster
      * contengono esplicitamente i vettori Example.
      * 
      * @param data vettore Data dove sono contenuti i vettori Example.

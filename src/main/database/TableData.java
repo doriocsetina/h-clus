@@ -11,13 +11,50 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/**
+ * Questa classe è responsabile per gestire le operazioni relative a una tabella
+ * del database.
+ * Fornisce un metodo per ottenere transazioni distinte da una tabella
+ * specificata.
+ * 
+ * Ogni istanza di questa classe è associata a un oggetto {@link DbAccess},
+ * che rappresenta la connessione al database.
+ *
+ */
 public class TableData {
     private DbAccess db;
 
+    /**
+     * Costruttore della classe TableData.
+     * 
+     * Instanzia un nuovo oggetto TableData associato a un oggetto DbAccess
+     * specificato,
+     * che rappresenta la connessione al database.
+     * 
+     * @param db l'oggetto DbAccess che rappresenta la connessione al database.
+     */
     public TableData(DbAccess db) {
         this.db = db;
     }
 
+    /**
+     * Ottiene le transazioni distinte da una tabella specificata.
+     * 
+     * Questo metodo esegue una query SQL sulla tabella specificata per ottenere
+     * tutte le transazioni distinte.
+     * Ogni transazione è rappresentata come un oggetto Example e tutti gli oggetti
+     * Example sono restituiti come una lista.
+     * 
+     * Se la tabella è vuota, viene lanciata un'eccezione EmptySetException.
+     *
+     * @param table il nome della tabella da cui ottenere le transazioni
+     * @return una lista di oggetti Example, ognuno rappresentante una transazione
+     *         distinta
+     * @throws SQLException           se si verifica un errore durante l'esecuzione
+     *                                della query SQL
+     * @throws EmptySetException      se la tabella è vuota
+     * @throws MissingNumberException se manca un numero nella transazione
+     */
     public List<Example> getDistinctTransactions(String table)
             throws SQLException, EmptySetException, MissingNumberException {
         /* crea la query */

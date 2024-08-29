@@ -12,51 +12,54 @@ public class Example implements Iterable<Double> {
     private List<Double> example; // vettore di valori reali
 
     /**
-     * inizializza example come vettore di dimensione length.
-     * 
-     * @param lenght dimensione dell'esempio.
+     * Inizializza il campo example.
      */
     public Example() {
         example = new LinkedList<>();
     }
 
     /**
-     * restituisce un iteratore per la LinkedList di Example.
+     * Restituisce un iteratore per la List di Example.
      * 
-     * @return un Iterator per gli elementi Double nella LinkedList di Example.
+     * @return un Iterator per gli elementi Double nella List di Example.
      */
     public Iterator<Double> iterator() {
         return example.iterator();
     }
 
     /**
-     * modifica example inserendo v in posizione index.
+     * Aggiunge il valore v alla lista Example.
      * 
-     * @param index posizione del valore.
-     * @param v     valore.
+     * @param v valore da aggiungere ad Example.
      */
     public void add(Double v) {
         example.add(v);
     }
 
     /**
-     * restituisce example[index]
+     * Restituisce il valore contenuto in Example all'indice dato in input.
      * 
-     * @param index posizione di example
-     * @return valore memorizzato in example[index]
+     * @param index posizione della lista del valore richiesto.
+     * @return valore memorizzato richiesto.
      */
     public Double get(int index) {
         return example.get(index);
     }
 
+    /**
+     * Restituisce la lunghezza della lista Example.
+     * 
+     * @return la lunghezza della lista Example.
+     */
     public int getLength() {
         return example.size();
     }
 
     /**
-     * restituisce la distanza calcolata
+     * Restituisce la distanza euclidea calcolata tra l'istanza di Example su cui è
+     * applicato il metodo e l'istanza newE data in input
      * 
-     * @param newE istanza di Example
+     * @param newE istanza di Example da cui si vuole calcolare la distanza
      * @return la distanza euclidea tra this.example e new.example
      */
     public double distance(Example newE) {
@@ -68,7 +71,7 @@ public class Example implements Iterable<Double> {
     }
 
     /**
-     * restituisce la stringa
+     * Restituisce la stringa rappresentante la lista example. 
      * 
      * @return la stringa che rappresenta il contenuto di example
      */

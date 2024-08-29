@@ -4,13 +4,13 @@ import clustering.Cluster;
 import data.Data;
 
 /**
- * l'interfaccia ClusterDistance fornisce un metodo per calcolare la distanza
+ * L'interfaccia ClusterDistance fornisce un metodo per calcolare la distanza
  * tra due cluster.
  */
 public interface ClusterDistance {
 
     /**
-     * calcola e restituisce la distanza tra due cluster.
+     * Calcola e restituisce la distanza tra due cluster.
      *
      * @param c1 il primo cluster.
      * @param c2 il secondo cluster.

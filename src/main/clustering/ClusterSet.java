@@ -6,7 +6,10 @@ import data.Data;
 import distance.ClusterDistance;
 
 /**
- * classe che rappresente un insieme di Cluster.
+ * Classe che rappresente un lista di Cluster.
+ * 
+ * Contiene il metodo {@link ClusterSet mergeClosestClusters()} che, stabilità
+ * la distanza da calcolare, determina i cluster più vicini e ne opera il merge.
  */
 class ClusterSet implements Serializable {
 
@@ -14,7 +17,7 @@ class ClusterSet implements Serializable {
 	private int lastClusterIndex = 0; // indice dell'ultimo Cluster aggiunto.
 
 	/**
-	 * crea un nuovo insieme di k Cluster.
+	 * Crea un nuovo insieme di k Cluster.
 	 * 
 	 * @param k numero di Cluster contenuti in Clusterset.
 	 */
@@ -23,7 +26,7 @@ class ClusterSet implements Serializable {
 	}
 
 	/**
-	 * aggiunge un cluster a ClusterSet.
+	 * Aggiunge un cluster a ClusterSet.
 	 * 
 	 * @param c cluster da agginugere.
 	 */
@@ -36,12 +39,17 @@ class ClusterSet implements Serializable {
 		lastClusterIndex++;
 	}
 
+	/**
+	 * Restituisce la lunghezza del cluster.
+	 * 
+	 * @return la lunghezza del vettore C del cluster.
+	 */
 	int getLength() {
 		return C.length;
 	}
 
 	/**
-	 * restituisce il Cluster all'indice specificato.
+	 * Restituisce il Cluster all'indice specificato.
 	 *
 	 * @param i l'indice del Cluster da restituire.
 	 * @return il Cluster all'indice specificato.
@@ -51,7 +59,7 @@ class ClusterSet implements Serializable {
 	}
 
 	/**
-	 * determina la coppia di cluster più simili e li fonde in unico cluster; crea
+	 * Determina la coppia di cluster più simili e li fonde in unico cluster; crea
 	 * una nuova istanza di ClusterSet che contiene tutti i cluster dell’oggetto
 	 * this a meno dei due cluster fusi al posto dei quali inserisce il cluster
 	 * risultante dalla fusione.
@@ -94,7 +102,7 @@ class ClusterSet implements Serializable {
 	}
 
 	/**
-	 * fornisce una rappresentazione stringa dell'oggetto ClusterSet.
+	 * Fornisce una rappresentazione stringa dell'oggetto ClusterSet.
 	 *
 	 * @return una stringa che rappresenta l'oggetto ClusterSet.
 	 */
@@ -111,7 +119,7 @@ class ClusterSet implements Serializable {
 	}
 
 	/**
-	 * fornisce una rappresentazione stringa dell'oggetto ClusterSet, dove i cluster
+	 * Fornisce una rappresentazione stringa dell'oggetto ClusterSet, dove i cluster
 	 * contengono esplicitamente i vettori Example.
 	 * 
 	 * @param data vettore Data dove sono contenuti i vettori Example.

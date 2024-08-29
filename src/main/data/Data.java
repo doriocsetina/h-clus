@@ -25,7 +25,16 @@ public class Data {
 	private int numberOfExamples; // rappresenta il numero di esempi nel dataset
 
 	/**
-	 * Costruttore che popola data dal database.
+	 * Costruttore che popola l'istanza di Data accedendo al database e leggendone
+	 * le transazioni.
+	 * 
+	 * @param tableName nome del database da cui prendere le transazioni.
+	 * @throws SQLException           se si verifica un errore durante l'esecuzione
+	 *                                della query SQL.
+	 * @throws EmptySetException      se la table specificata in input non contiene
+	 *                                nessun elemento.
+	 * @throws MissingNumberException se una transazione contiene caratteri non
+	 *                                numerici.
 	 */
 	public Data(String tableName) throws SQLException, EmptySetException, MissingNumberException {
 		// data
@@ -39,24 +48,32 @@ public class Data {
 	}
 
 	/**
-	 * restituisce numberOfExamples
+	 * Restituisce il numero di vettori Example contenuti in Data.
 	 * 
-	 * @return numero di esempi memorizzati in data
+	 * @return numero di esempi memorizzati in data.
 	 */
 	public int getNumberOfExamples() {
 		return this.numberOfExamples;
 	}
 
 	/**
-	 * restituisce data[exampleIndex]
+	 * Restituisce l'esempio contenuto all'indice specificato.
 	 *
-	 * @param exampleIndex indice di un esempio memorizzato in data
-	 * @return l'esempio memorizzato in data[exampleIndex]
+	 * @param exampleIndex indice di un esempio memorizzato in data.
+	 * @return l'esempio memorizzato richiesto.
 	 */
 	public Example getExample(int exampleIndex) {
 		return data.get(exampleIndex);
 	}
 
+	/**
+	 * Genera il checksum unico dei dati contenuti nell'istanza di data su cui viene
+	 * chiamato il metodo. Il checksum rimane invariato se una diversa istanza di
+	 * Data è popolata con gli stessi valori.
+	 * 
+	 * @return stringa esadecimale unica calcolata in base ai valori contenuti in
+	 *         data.
+	 */
 	public String generateChecksum() {
 		try {
 			MessageDigest md = MessageDigest.getInstance("SHA-256");
@@ -74,11 +91,14 @@ public class Data {
 	}
 
 	/**
-	 * restituisce la matrice triangolare superiore delle distanze
+	 * Restituisce la matrice triangolare superiore delle distanze
 	 * 
 	 * @return matrice triangolare superiore delle distanze Euclidee calcolate tra
 	 *         gli esempi memorizzati in data. Tale matrice va avvalorata usando il
-	 *         metodo distance di Example
+	 *         metodo distance di Example.
+	 * 
+	 * @throws InvalidSizeException se due vettori Example contenuti all'interno di
+	 *                              data non hanno lo stesso numero di elementi.
 	 */
 	public double[][] distance() throws InvalidSizeException {
 		double[][] distance = new double[this.numberOfExamples][this.numberOfExamples];
@@ -95,10 +115,10 @@ public class Data {
 	}
 
 	/**
-	 * crea una stringa in cui memorizza gli esempi memorizzati nell’attributo data,
-	 * opportunamente enumerati. Restituisce tale stringa
+	 * Crea una stringa in cui memorizza gli esempi memorizzati nell’attributo data,
+	 * opportunamente enumerati. Restituisce tale stringa.
 	 * 
-	 * @return stringa che modella lo stato dell'oggetto
+	 * @return stringa che modella lo stato dell'oggetto.
 	 */
 	public String toString() {
 		String string = "";

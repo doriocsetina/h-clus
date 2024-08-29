@@ -5,16 +5,16 @@ import data.Data;
 import data.Example;
 
 /**
- * implementazione dell'interfaccia ClusterDistance che utilizza il metodo
+ * Implementazione dell'interfaccia ClusterDistance che utilizza il metodo
  * average-link.
- * nel metodo average-link la distanza tra due cluster è definita come la
+ * Nel metodo average-link la distanza tra due cluster è definita come la
  * sommatoria tra le distanze euclidee di ogni coppia di vettori Example
  * contenuti nei cluster divisa per il prodotto delle dimensioni dei cluster.
  */
 public class AverageLinkDistance implements ClusterDistance {
 
     /**
-     * calcola e restituisce la distanza average-link tra i due Cluster.
+     * Calcola e restituisce la distanza average-link tra i due Cluster.
      * 
      * @param c1 il primo cluster.
      * @param c2 il secondo cluster.

@@ -8,9 +8,11 @@ import java.io.Serializable;
 import data.Data;
 
 /**
- * classe che rappresenta il cluster dei vettori Example, salvando
- * all'interno di clusteredData[] le posizioni dei vettori Example all'interno
+ * Classe che rappresenta il cluster dei vettori Example, salvando
+ * all'interno di {@link Set<Integer> clusterData} le posizioni dei vettori Example all'interno
  * del vettore Data che fanno parte del Cluster.
+ * 
+ * Contiene i metodi per aggiungere vettori al cluster e per operare il merge di due istanze Cluster.
  */
 public class Cluster implements Iterable<Integer>, Cloneable, Serializable {
 
@@ -31,7 +33,7 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable {
 	}
 
 	/**
-	 * aggiunge un vettore Example al cluster.
+	 * Aggiunge un vettore Example al cluster.
 	 * 
 	 * @param id posizione del vettore Example.
 	 */
@@ -40,7 +42,7 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable {
 	}
 
 	/**
-	 * restituisce il numero di elementi del Cluster.
+	 * Restituisce il numero di elementi del Cluster.
 	 * 
 	 * @return il numero di elementi del Cluster.
 	 */
@@ -49,18 +51,7 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable {
 	}
 
 	/**
-	 * restituisce la posizione del vettore Example all'interno di Data.
-	 * 
-	 * @param i indice di un vettore Example memorizzato in Cluster.
-	 * @return la posizione del vettore Example all'interno di Data.
-	 */
-
-	// public int getElement(int i) {
-	// return clusteredData[i];
-	// }
-
-	/**
-	 * crea una copia del cluster corrente.
+	 * Crea una copia del cluster corrente.
 	 * 
 	 * @return hard copy dell'oggetto Cluster.
 	 */
@@ -74,9 +65,9 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable {
 	}
 
 	/**
-	 * crea un nuovo Cluster che è la fusione dei due Cluster pre-esistenti.
+	 * Crea un nuovo Cluster che è la fusione dei due Cluster pre-esistenti.
 	 * 
-	 * @param c Cluster che verrà fuso a this.
+	 * @param c cluster che verrà fuso a this.
 	 * @return un nuovo Cluster contente gli oggetti di entrambi i Cluster
 	 *         precedenti.
 	 */
@@ -91,7 +82,7 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable {
 	}
 
 	/**
-	 * restituisce la stringa del vettore clusteredData.
+	 * Restituisce la stringa del vettore clusteredData.
 	 * 
 	 * @return stringa delle posizioni dei vettori Example contenuti nel Cluster.
 	 */
@@ -108,7 +99,7 @@ public class Cluster implements Iterable<Integer>, Cloneable, Serializable {
 	}
 
 	/**
-	 * restituisce la stringa dei vettori contenuti nel Cluster.
+	 * Restituisce la stringa dei vettori contenuti nel Cluster.
 	 * 
 	 * @param data vettore Data che contiene i vettori Example.
 	 * @return stringa che rappresenta interamente i vettori Example contenuti nel

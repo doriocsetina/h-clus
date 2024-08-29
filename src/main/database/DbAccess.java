@@ -43,7 +43,6 @@ public class DbAccess {
         try {
             conn = DriverManager.getConnection(connectionString);
         } catch (SQLException e) {
-
             throw new DatabaseConnectionException(e.toString());
         }
     }

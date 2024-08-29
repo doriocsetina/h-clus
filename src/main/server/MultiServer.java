@@ -21,6 +21,12 @@ import distance.SingleLinkDistance;
 public class MultiServer {
     static final int PORT = 8080;
 
+    /**
+     * Metodo main per avviare il server.
+     *
+     * @param args argomenti della riga di comando
+     * @throws IOException se si verifica un errore di I/O
+     */
     public static void main(String[] args) throws IOException {
         System.out.println("Starting server on port: " + PORT);
         try (ServerSocket s = new ServerSocket(PORT)) {
@@ -37,12 +43,21 @@ public class MultiServer {
     }
 }
 
+/**
+ * Classe thread che gestisce la comunicazione con un singolo client.
+ */
 class ServerOneClient extends Thread {
     private static final Logger LOGGER = Logger.getLogger(ServerOneClient.class.getName());
     private Socket socket;
     private ObjectInputStream in;
     private ObjectOutputStream out;
 
+    /**
+     * Costruttore per creare un nuovo thread per gestire un client.
+     *
+     * @param s il socket del client
+     * @throws IOException se si verifica un errore di I/O
+     */
     public ServerOneClient(Socket s) throws IOException {
         socket = s;
 
@@ -52,6 +67,9 @@ class ServerOneClient extends Thread {
         start();
     }
 
+    /**
+     * Metodo main del thread per gestire la comunicazione con il client.
+     */
     public void run() {
         LOGGER.setLevel(Level.FINE);
         try {
@@ -90,6 +108,15 @@ class ServerOneClient extends Thread {
         }
     }
 
+    /**
+     * Riceve il tipo di operazione richiesta dal client.
+     *
+     * @return il tipo di operazione, 0 per far iniziare il thread, -1 per terminare
+     *         il thread aperto dal client.
+     * @throws IOException            se si verifica un errore di I/O
+     * @throws ClassNotFoundException se si verifica un errore durante la lettura
+     *                                dell'oggetto
+     */
     private int receiveOperationType() throws IOException, ClassNotFoundException {
         int operationType = (int) in.readObject();
         LOGGER.fine("The current thread is: " + Thread.currentThread().toString());
@@ -98,6 +125,14 @@ class ServerOneClient extends Thread {
         return operationType;
     }
 
+    /**
+     * Carica i dati del database dopo aver ricevuto dal Client il nome della table
+     * SQL dove sono contenuti i dati.
+     *
+     * @return l'istanza data popolata con i dati contenuti nel DB, o null se non è
+     *         possibile caricare i dati
+     * @throws IOException se si verifica un errore di I/O
+     */
     private Data loadDataFromClient() throws IOException {
         Data data = null;
         int attempts = 0;
@@ -139,6 +174,21 @@ class ServerOneClient extends Thread {
         return data;
     }
 
+    /**
+     * Gestisce l'operazione di caricamento del dendrogramma a partire dal file
+     * specificato dal client e restituisce al client la stringa contenente il
+     * dendrogramma popolato; restituisce un messaggio di errore
+     * nel caso vengano lanciate delle eccezioni.
+     * 
+     * Nel caso in cui il dendrogramma caricato da file è stato costruito su dei
+     * dati diversi da quelli contenuti nella table specificata il metodo ritorna al
+     * client un messaggio d'errore.
+     *
+     * @param data i dati da utilizzare
+     * @throws IOException            se si verifica un errore di I/O
+     * @throws ClassNotFoundException se si verifica un errore durante la lettura
+     *                                dell'oggetto
+     */
     private void handleLoadDendrogram(Data data) throws IOException, ClassNotFoundException {
         String fileName = (String) in.readObject();
         try {
@@ -157,6 +207,19 @@ class ServerOneClient extends Thread {
         }
     }
 
+    /**
+     * Gestisce l'operazione di apprendimento del dendrogramma a partire dai dati
+     * precedendemente ottenuti tramite il database e inizializza l'operazione di
+     * mining sui dati forniti in input. Al client viene richiesto la distanza da
+     * utilizzare. Al termine dell'operazione ritorna al client la stringa
+     * rappresentante del dendrogramma ottenuto. Successivamente il dendrogramma
+     * ottenuto viene serializzato su disco con il nome specificato dal client.
+     *
+     * @param data i dati da utilizzare
+     * @throws IOException            se si verifica un errore di I/O
+     * @throws ClassNotFoundException se si verifica un errore durante la lettura
+     *                                dell'oggetto
+     */
     private void handleLearnDendrogram(Data data) throws IOException, ClassNotFoundException {
         // apprendi dendrogramma da database;
         int depth = (int) in.readObject();

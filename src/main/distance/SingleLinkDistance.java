@@ -5,16 +5,16 @@ import data.Data;
 import data.Example;
 
 /**
- * implementazione della interfaccia ClusterDistance che utilizza il metodo
+ * Implementazione della interfaccia ClusterDistance che utilizza il metodo
  * single-link.
- * nel metodo Single Link, la distanza tra due cluster è definita come la
+ * Nel metodo Single Link, la distanza tra due cluster è definita come la
  * distanza minima tra qualsiasi coppia di esempi in cui uno proviene da ciascun
  * cluster.
  */
 public class SingleLinkDistance implements ClusterDistance {
 
 	/**
-	 * calcola e restituisce la distanza minima tra qualsiasi coppia di esempi in
+	 * Calcola e restituisce la distanza minima tra qualsiasi coppia di esempi in
 	 * cui uno proviene da ciascun cluster.
 	 *
 	 * @param c1 il primo cluster.
