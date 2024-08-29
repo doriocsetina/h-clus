@@ -27,21 +27,15 @@ public class Data {
 	/**
 	 * Costruttore che popola data dal database.
 	 */
-	public Data(String tableName) {
-
+	public Data(String tableName) throws SQLException, EmptySetException, MissingNumberException {
 		// data
 		DbAccess db = new DbAccess();
 		TableData tableData = new TableData(db);
 
-		try {
-			this.data = tableData.getDistinctTransactions(tableName);
-		} catch (SQLException | EmptySetException | MissingNumberException e) {
-			e.printStackTrace();
-		}
+		this.data = tableData.getDistinctTransactions(tableName);
 
 		// numberOfExamples
 		numberOfExamples = data.size();
-
 	}
 
 	/**
@@ -117,9 +111,9 @@ public class Data {
 	}
 
 	public static void main(String args[]) {
-		Data trainingSet = new Data("exampleTab");
-		System.out.println(trainingSet);
 		try {
+			Data trainingSet = new Data("exampleTab");
+			System.out.println(trainingSet);
 			double[][] distancematrix = trainingSet.distance();
 			System.out.println("Distance matrix:\n");
 			for (int i = 0; i < distancematrix.length; i++) {
@@ -129,6 +123,12 @@ public class Data {
 			}
 		} catch (InvalidSizeException e) {
 			System.err.println(e.getMessage());
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (EmptySetException e) {
+			e.printStackTrace();
+		} catch (MissingNumberException e) {
+			e.printStackTrace();
 		}
 
 	}
