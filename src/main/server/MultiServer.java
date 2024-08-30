@@ -48,6 +48,7 @@ public class MultiServer {
  */
 class ServerOneClient extends Thread {
     private static final Logger LOGGER = Logger.getLogger(ServerOneClient.class.getName());
+    private boolean shouldClose = false;
     private Socket socket;
     private ObjectInputStream in;
     private ObjectOutputStream out;
@@ -74,16 +75,16 @@ class ServerOneClient extends Thread {
         LOGGER.setLevel(Level.FINE);
         try {
             while (true) {
-                int operationType = receiveOperationType();
-                if (operationType == -1)
-                    break;
 
                 Data data = loadDataFromClient();
                 if (data == null) {
                     break;
                 }
+                if (shouldClose) {
+                    break;
+                }
 
-                operationType = (int) in.readObject();
+                int operationType = (int) in.readObject();
                 switch (operationType) {
                     case 1:
                         // carica dendrogramma da file
@@ -109,23 +110,6 @@ class ServerOneClient extends Thread {
     }
 
     /**
-     * Riceve il tipo di operazione richiesta dal client.
-     *
-     * @return il tipo di operazione, 0 per far iniziare il thread, -1 per terminare
-     *         il thread aperto dal client.
-     * @throws IOException            se si verifica un errore di I/O
-     * @throws ClassNotFoundException se si verifica un errore durante la lettura
-     *                                dell'oggetto
-     */
-    private int receiveOperationType() throws IOException, ClassNotFoundException {
-        int operationType = (int) in.readObject();
-        LOGGER.fine("The current thread is: " + Thread.currentThread().toString());
-        while (operationType != 0 && operationType != -1)
-            operationType = (int) in.readObject();
-        return operationType;
-    }
-
-    /**
      * Carica i dati del database dopo aver ricevuto dal Client il nome della table
      * SQL dove sono contenuti i dati.
      *
@@ -134,12 +118,18 @@ class ServerOneClient extends Thread {
      * @throws IOException se si verifica un errore di I/O
      */
     private Data loadDataFromClient() throws IOException {
+        LOGGER.fine("The current thread is: " + Thread.currentThread().toString());
+
         Data data = null;
         int attempts = 0;
         while (data == null && attempts < 3) {
-
             LOGGER.info("hai fatto: " + attempts + " tentativi.");
             try {
+                int operationType = (int) in.readObject();
+                if (operationType == -1) {
+                    shouldClose = true;
+                    break;
+                }
                 String tableName = (String) in.readObject();
                 data = new Data(tableName);
                 LOGGER.info("Loaded the database;");
@@ -153,16 +143,6 @@ class ServerOneClient extends Thread {
                 LOGGER.warning("Invalid data received from client");
                 out.writeObject("Ricevuti dati invalidi.");
                 attempts++;
-            }
-
-            try {
-                int operationType = (int) in.readObject();
-                if (operationType != 0)
-                    out.writeObject("Ricevuti dati invalidi.");
-            } catch (ClassNotFoundException e) {
-                LOGGER.warning("Invalid data received from client");
-                out.writeObject("Ricevuti dati invalidi.");
-                return null;
             }
 
         }
@@ -221,6 +201,7 @@ class ServerOneClient extends Thread {
      *                                dell'oggetto
      */
     private void handleLearnDendrogram(Data data) throws IOException, ClassNotFoundException {
+        LOGGER.info("handling learning dendrogram");
         // apprendi dendrogramma da database;
         int depth = (int) in.readObject();
         HierachicalClusterMiner clustering = new HierachicalClusterMiner(depth);
