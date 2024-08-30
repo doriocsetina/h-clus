@@ -14,7 +14,6 @@ public class MainTest {
 	private ObjectOutputStream out;
 	private ObjectInputStream in; // stream con richieste del client
 
-
 	public MainTest(String ip, int port) throws IOException {
 		InetAddress addr = InetAddress.getByName(ip); // ip
 		System.out.println("addr = " + addr);
@@ -23,7 +22,7 @@ public class MainTest {
 
 		out = new ObjectOutputStream(socket.getOutputStream());
 		in = new ObjectInputStream(socket.getInputStream());
-		// stream con richieste del client
+		; // stream con richieste del client
 	}
 
 	private int menu() {
@@ -97,14 +96,14 @@ public class MainTest {
 		MainTest main = null;
 		try {
 			main = new MainTest(ip, port);
+
 			main.loadDataOnServer();
 			int scelta = main.menu();
 			if (scelta == 1)
 				main.loadDedrogramFromFileOnServer();
 			else
 				main.mineDedrogramOnServer();
-			
-			System.out.println("Client closing...");
+
 			main.out.writeObject(-1);
 		} catch (IOException | ClassNotFoundException e) {
 			System.out.println(e);

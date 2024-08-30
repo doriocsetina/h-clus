@@ -123,7 +123,7 @@ class ServerOneClient extends Thread {
         Data data = null;
         int attempts = 0;
         while (data == null && attempts < 3) {
-            LOGGER.info("hai fatto: " + attempts + " tentativi.");
+            LOGGER.info("The current thread has done: " + attempts + " attempts.");
             try {
                 int operationType = (int) in.readObject();
                 if (operationType == -1) {
@@ -170,6 +170,7 @@ class ServerOneClient extends Thread {
      *                                dell'oggetto
      */
     private void handleLoadDendrogram(Data data) throws IOException, ClassNotFoundException {
+        LOGGER.info("Handling loading dendrogram from file.");
         String fileName = (String) in.readObject();
         try {
             HierachicalClusterMiner clustering = HierachicalClusterMiner.load(fileName);
@@ -201,7 +202,7 @@ class ServerOneClient extends Thread {
      *                                dell'oggetto
      */
     private void handleLearnDendrogram(Data data) throws IOException, ClassNotFoundException {
-        LOGGER.info("handling learning dendrogram");
+        LOGGER.info("Handling learning dendrogram from database.");
         // apprendi dendrogramma da database;
         int depth = (int) in.readObject();
         HierachicalClusterMiner clustering = new HierachicalClusterMiner(depth);
