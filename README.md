@@ -11,7 +11,8 @@ entriamo nella repository
 
 `cd h-clus/`
 
-### building server from source
+
+## building server from source
 
 compiliamo tutte le classi del progetto all'interno della cartella `target/`, usando find per trovare tutti i file .java all'interno dei packages:
 
@@ -33,7 +34,8 @@ e rimuovere la cartella target:
 
 `rm -rf target/`
 
-### building client from source
+
+## building client from source
 
 compiliamo il codice del client:
 
@@ -46,6 +48,7 @@ creiamo il jar
 ora è possibile eseguire il client tramite il comando:
 
 `java -jar Maintest.jar ADDRESS PORT`
+
 
 ## Running the application
 
