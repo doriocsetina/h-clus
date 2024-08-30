@@ -11,6 +11,24 @@ entriamo nella repository
 
 `cd h-clus/`
 
+eseguiamo lo script `./install.sh`
+
+verranno creati i file jar del server `MultiServer.jar` e del client `MainTest.jar`
+
+## Running the application
+
+avviamo il server:
+
+`java -jar MultiServer.jar`
+
+nel caso di test nella stessa macchina eseguiamo:
+
+`java -jar MainTest.jar localhost 8080`
+
+il server ha come porta impostata di default `8080`
+
+eseguire quindi i passaggi richiesti dal client. 
+
 
 ## building server from source
 
@@ -50,16 +68,3 @@ ora è possibile eseguire il client tramite il comando:
 `java -jar Maintest.jar ADDRESS PORT`
 
 
-## Running the application
-
-avviamo il server:
-
-`java -jar MultiServer.jar`
-
-nel caso di test nella stessa macchina eseguiamo:
-
-`java -jar MainTest.jar localhost 8080`
-
-il server ha come porta impostata di default `8080`
-
-eseguire quindi i passaggi richiesti dal client. 
