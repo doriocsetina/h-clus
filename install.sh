@@ -3,6 +3,8 @@
 if systemctl is-active --quiet mysql
 then
     echo "MySQL is running"
+    mysql -u MapUser -p${password} < src/sql/SQLCreateTables.sql
+
 else 
     echo "MySQL is not running"
     echo "Starting MySQL... (you will be prompted your password to start the DB service)"
