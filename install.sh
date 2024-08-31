@@ -3,7 +3,6 @@
 if systemctl is-active --quiet mysql
 then
     echo "MySQL is running"
-    mysql -u MapUser -p${password} < src/sql/SQLCreateTables.sql
 
 else 
     echo "MySQL is not running"
@@ -11,12 +10,10 @@ else
 
     sudo systemctl start mysql
 
-    echo -n "Enter the root password for MySQL: "
-    read -s password 
-
-    echo "Executing SQL script to poulate database..."
-    mysql -u MapUser -p${password} < src/sql/SQLCreateTables.sql
 fi
+
+echo "Executing SQL script to poulate database..."
+mysql -u MapUser -p$ < src/sql/SQLCreateTables.sql
 
 echo "compiling source code..."
 javac -cp lib/* -d target/ $(find src -name "*.java")
