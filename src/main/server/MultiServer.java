@@ -116,7 +116,7 @@ class ServerOneClient extends Thread {
                     LOGGER.info("closing thread...");
 
                 case "gui":
-                    List<String> tableStrings = (findTableStrings());
+                    String tableStrings = findTableStrings();
                     out.writeObject(tableStrings);
                     while (true) {
 
