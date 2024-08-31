@@ -11,6 +11,18 @@ entriamo nella repository
 
 `cd h-clus/`
 
+### dependencies
+
+il progetto si basa su due librerie:
+
+1. [driver jdbc](https://dev.mysql.com/downloads/connector/j/), per gestire le operazioni di connessione al database SQL.
+2. [jackson-core](https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/), per gestire le operazioni core del formato JSON.
+3. [jackson-databind](https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/), per gestire le operazioni di serializzazione degli oggetti JSON.
+
+scaricare i rispettivi jar delle librerie e posizionarli all'interno della cartella `lib/`
+
+### install
+
 eseguiamo lo script `./install.sh`
 
 verranno creati i file jar del server `MultiServer.jar` e del client `MainTest.jar`
