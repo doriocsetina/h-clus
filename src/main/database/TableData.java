@@ -2,6 +2,7 @@ package database;
 
 import java.util.LinkedList;
 import java.util.List;
+
 import data.Example;
 import database.exceptions.DatabaseConnectionException;
 import database.exceptions.EmptySetException;
@@ -35,6 +36,25 @@ public class TableData {
      */
     public TableData(DbAccess db) {
         this.db = db;
+    }
+
+    public List<String> getTables() throws SQLException {
+        String queryString = "SHOW TABLES";
+
+        List<String> tableStrings = new LinkedList<>();
+
+        try (PreparedStatement preparedStatement = db.getConnection().prepareStatement(queryString)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()) {
+                int i = 0;
+                tableStrings.add(resultSet.getString(i++));
+            }
+
+        } catch (DatabaseConnectionException e) {
+            e.printStackTrace();
+        }
+        return tableStrings;
     }
 
     /**

@@ -13,7 +13,7 @@ entriamo nella repository
 
 ### dependencies
 
-il progetto si basa su due librerie:
+il progetto si basa su tre librerie:
 
 1. [driver jdbc](https://dev.mysql.com/downloads/connector/j/), per gestire le operazioni di connessione al database SQL.
 2. [jackson-core](https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/), per gestire le operazioni core del formato JSON.

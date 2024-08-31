@@ -96,7 +96,7 @@ public class MainTest {
 		MainTest main = null;
 		try {
 			main = new MainTest(ip, port);
-
+			main.out.writeObject("tui");
 			main.loadDataOnServer();
 			int scelta = main.menu();
 			if (scelta == 1)

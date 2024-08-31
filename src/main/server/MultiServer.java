@@ -3,12 +3,20 @@ package server;
 import java.io.*;
 import java.net.*;
 import java.sql.SQLException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import clustering.HierachicalClusterMiner;
 import clustering.exceptions.InvalidDepthException;
 import data.Data;
+import database.DbAccess;
+import database.TableData;
 import database.exceptions.EmptySetException;
 import database.exceptions.MissingNumberException;
 import distance.AverageLinkDistance;
@@ -74,39 +82,81 @@ class ServerOneClient extends Thread {
     public void run() {
         LOGGER.setLevel(Level.FINE);
         try {
-            while (true) {
+            String clientType = (String) in.readObject();
+            findTableStrings();
+            switch (clientType) {
 
-                Data data = loadDataFromClient();
-                if (data == null) {
-                    break;
-                }
-                if (shouldClose) {
-                    break;
-                }
+                case "tui":
+                    while (true) {
 
-                int operationType = (int) in.readObject();
-                switch (operationType) {
-                    case 1:
-                        // carica dendrogramma da file
-                        handleLoadDendrogram(data);
-                        break;
-                    case 2:
-                        // apprendi dendrogramma da database
-                        handleLearnDendrogram(data);
-                        break;
-                    default:
-                        LOGGER.info("Codice operazione sconosciuto.");
-                        break;
-                }
+                        Data data = loadDataFromClient();
+                        if (data == null) {
+                            break;
+                        }
+                        if (shouldClose) {
+                            break;
+                        }
 
+                        int operationType = (int) in.readObject();
+                        switch (operationType) {
+                            case 1:
+                                // carica dendrogramma da file
+                                handleLoadDendrogram(data);
+                                break;
+                            case 2:
+                                // apprendi dendrogramma da database
+                                handleLearnDendrogram(data);
+                                break;
+                            default:
+                                LOGGER.info("Codice operazione sconosciuto.");
+                                break;
+                        }
+
+                    }
+                    LOGGER.info("closing thread...");
+
+                case "gui":
+                    List<String> tableStrings = (findTableStrings());
+                    out.writeObject(tableStrings);
+                    while (true) {
+
+                    }
             }
-            LOGGER.info("closing thread...");
         } catch (IOException e) {
             System.err.println("Socket not closed.");
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
             LOGGER.severe("Terminating thread, wrong inputs from the client. ");
         }
+    }
+
+    private String findTableStrings() {
+        DbAccess db = new DbAccess();
+        TableData tableData = new TableData(db);
+        List<String> tableStrings = new LinkedList<>();
+        try {
+            tableStrings = tableData.getTables();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayNode arrayNode = mapper.createArrayNode();
+        for (String tableString : tableStrings) {
+            arrayNode.add(tableString);
+        }
+
+        ObjectNode jsonObject = mapper.createObjectNode();
+        jsonObject.set("tables", arrayNode);
+
+        String jsonString = "";
+        try {
+            jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonObject);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return jsonString;
     }
 
     /**
@@ -222,9 +272,7 @@ class ServerOneClient extends Thread {
             clustering.mine(data, distance);
             out.writeObject("OK");
             out.writeObject(clustering.toString(data));
-            String fileName = (String) in.readObject();
-            clustering.save(fileName);
-            LOGGER.fine("file saved.");
+            handleSaveDendrogram(clustering);
         } catch (InvalidDepthException e) {
             e.printStackTrace();
         } catch (EOFException e) {
@@ -234,4 +282,9 @@ class ServerOneClient extends Thread {
 
     }
 
+    private void handleSaveDendrogram(HierachicalClusterMiner clustering) throws ClassNotFoundException, IOException {
+        String fileName = (String) in.readObject();
+        clustering.save(fileName);
+        LOGGER.fine("file saved.");
+    }
 }
