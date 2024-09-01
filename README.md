@@ -25,6 +25,7 @@ scaricare i rispettivi jar delle librerie e posizionarli all'interno della carte
 ### install 
 
 eseguiamo lo script `./install.sh` per sistemi linux;
+
 eseguiamo lo script `.\install.ps1` per sistemi windows.
 
 verranno creati i file jar del server `MultiServer.jar` e del client `MainTest.jar`
