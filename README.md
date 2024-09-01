@@ -1,7 +1,7 @@
 # h-clus
 a java exam
 
-## installation (linux)
+## installation
 
 cloniamo la repository: 
 
@@ -13,7 +13,7 @@ entriamo nella repository
 
 ### dependencies
 
-il progetto si basa su tre librerie:
+il progetto si basa su quattro librerie:
 
 1. [driver jdbc](https://dev.mysql.com/downloads/connector/j/), per gestire le operazioni di connessione al database SQL.
 2. [jackson-core](https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/), per gestire le operazioni core del formato JSON.
@@ -22,11 +22,13 @@ il progetto si basa su tre librerie:
 
 scaricare i rispettivi jar delle librerie e posizionarli all'interno della cartella `lib/`
 
-### install
+### install 
 
-eseguiamo lo script `./install.sh`
+eseguiamo lo script `./install.sh` per sistemi linux;
+eseguiamo lo script `.\install.ps1` per sistemi windows.
 
 verranno creati i file jar del server `MultiServer.jar` e del client `MainTest.jar`
+
 
 ## Running the application
 
@@ -43,7 +45,7 @@ il server ha come porta impostata di default `8080`
 eseguire quindi i passaggi richiesti dal client. 
 
 
-## building server from source
+## building server from source (linux)
 
 compiliamo tutte le classi del progetto all'interno della cartella `target/`, usando find per trovare tutti i file .java all'interno dei packages:
 
@@ -66,7 +68,7 @@ e rimuovere la cartella target:
 `rm -rf target/`
 
 
-## building client from source
+## building client from source (linux)
 
 compiliamo il codice del client:
 
