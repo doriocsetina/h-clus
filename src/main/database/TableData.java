@@ -47,7 +47,7 @@ public class TableData {
             ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
-                int i = 0;
+                int i = 1;
                 tableStrings.add(resultSet.getString(i++));
             }
 

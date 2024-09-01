@@ -83,7 +83,7 @@ class ServerOneClient extends Thread {
         LOGGER.setLevel(Level.FINE);
         try {
             String clientType = (String) in.readObject();
-            findTableStrings();
+            
             switch (clientType) {
 
                 case "tui":
@@ -117,6 +117,7 @@ class ServerOneClient extends Thread {
 
                 case "gui":
                     String tableStrings = findTableStrings();
+                    LOGGER.info("sent tables;");
                     out.writeObject(tableStrings);
                     while (true) {
 
@@ -155,7 +156,7 @@ class ServerOneClient extends Thread {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        System.out.println(jsonString);
         return jsonString;
     }
 

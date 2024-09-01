@@ -13,20 +13,28 @@ else
 fi
 
 echo "Executing SQL script to poulate database..."
-mysql -u MapUser -p$ < src/sql/SQLCreateTables.sql
+mysql -u MapUser -p < src/sql/SQLCreateTables.sql
 
 echo "compiling source code..."
-javac -cp lib/* -d target/ $(find src -name "*.java")
+CLASSPATH=$(find lib -name "*.jar" | tr '\n' ':')
+
+javac -cp "$CLASSPATH" -d target/ $(find src -name "*.java")
 
 echo "creating MainTest.jar"
 jar cfe MainTest.jar MainTest -C target/ .
 
-echo "extracting dependencies from driver"
-unzip -o -d target/ lib/mysql-connector-j-9.0.0.jar > /dev/null
+# echo "extracting dependencies from driver"
+# unzip -o -d target/ lib/* > /dev/null
+
+echo "Extracting dependencies from driver"
+for jar in lib/*.jar; do
+    unzip -o -d target/ $jar > /dev/null
+done
+
 
 echo "creating MultiServer.jar"
 jar cfe MultiServer.jar server.MultiServer -C target/ .
 
 echo "cleaning..."
-rm -rf target/
+# rm -rf target/
 

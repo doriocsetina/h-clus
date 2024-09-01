@@ -1,9 +1,14 @@
 package gui;
 
 import javax.swing.*;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 import java.util.List;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -15,6 +20,7 @@ public class GuiClient {
 
     private ObjectOutputStream out;
     private ObjectInputStream in;
+    private Socket socket;
 
     private JPanel panel;
     private JFrame loginFrame;
@@ -55,14 +61,13 @@ public class GuiClient {
             public void actionPerformed(ActionEvent e) {
                 try {
                     connectToServer(ipField.getText(), Integer.parseInt(portField.getText()));
-                    Object obj = in.readObject();
-
-                    createAndShowMainGUI();
+                    String tabsJson = (String) in.readObject();
+                    System.out.println(tabsJson);
+                    createAndShowMainGUI(decodeJsonString(tabsJson));
                     loginFrame.setVisible(false);
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 } catch (ClassNotFoundException e1) {
-                    // TODO Auto-generated catch block
                     e1.printStackTrace();
                 }
             }
@@ -73,12 +78,20 @@ public class GuiClient {
         loginFrame.setVisible(true);
     }
 
-    private void createAndShowMainGUI() {
+    private void connectToServer(String ip, int port) throws IOException {
+        InetAddress addr = InetAddress.getByName(ip);
+        socket = new Socket(addr, port);
+        out = new ObjectOutputStream(socket.getOutputStream());
+        in = new ObjectInputStream(socket.getInputStream());
+        out.writeObject("gui");
+    }
+
+    private void createAndShowMainGUI(List<String> tabsStrings) {
         mainFrame = new JFrame("GuiClient");
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         mainFrame.setLayout(new GridLayout(6, 2));
 
-        availableTabsBox = new JComboBox<String>();
+        availableTabsBox = new JComboBox<>(tabsStrings.toArray(new String[0]));
         mainFrame.add(new JLabel("Table name:"));
         mainFrame.add(availableTabsBox);
 
@@ -110,13 +123,24 @@ public class GuiClient {
         mainFrame.setVisible(true);
     }
 
-    private void connectToServer(String ip, int port) throws IOException {
-        InetAddress addr = InetAddress.getByName(ip);
-        try (Socket socket = new Socket(addr, port)) {
-            out = new ObjectOutputStream(socket.getOutputStream());
-            in = new ObjectInputStream(socket.getInputStream());
-            out.writeObject("gui");
+    private List<String> decodeJsonString(String jsonString) {
+        ObjectMapper mapper = new ObjectMapper();
+        List<String> tableStrings = new ArrayList<>();
+
+        try {
+            JsonNode rootNode = mapper.readTree(jsonString);
+            JsonNode tablesNode = rootNode.path("tables");
+
+            if (tablesNode.isArray()) {
+                for (JsonNode tableNode : tablesNode) {
+                    tableStrings.add(tableNode.asText());
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        System.out.println(tableStrings);
+        return tableStrings;
     }
 
     private void loadDataOnServer() {

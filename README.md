@@ -18,6 +18,7 @@ il progetto si basa su tre librerie:
 1. [driver jdbc](https://dev.mysql.com/downloads/connector/j/), per gestire le operazioni di connessione al database SQL.
 2. [jackson-core](https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-core/), per gestire le operazioni core del formato JSON.
 3. [jackson-databind](https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-databind/), per gestire le operazioni di serializzazione degli oggetti JSON.
+4. [jackson-annotations](https://repo1.maven.org/maven2/com/fasterxml/jackson/core/jackson-annotations/), dipendenza delle due librerie precedenti.
 
 scaricare i rispettivi jar delle librerie e posizionarli all'interno della cartella `lib/`
 
