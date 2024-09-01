@@ -1,9 +1,9 @@
-package clustering;
+package server.clustering;
 
 import java.io.Serializable;
 
-import data.Data;
-import distance.ClusterDistance;
+import server.data.Data;
+import server.distance.ClusterDistance;
 
 /**
  * Classe che rappresente un lista di Cluster.

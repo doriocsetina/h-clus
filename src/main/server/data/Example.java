@@ -1,4 +1,4 @@
-package data;
+package server.data;
 
 import java.util.Iterator;
 import java.util.LinkedList;

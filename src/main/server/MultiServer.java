@@ -12,16 +12,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import clustering.HierachicalClusterMiner;
-import clustering.exceptions.InvalidDepthException;
-import data.Data;
-import database.DbAccess;
-import database.TableData;
-import database.exceptions.EmptySetException;
-import database.exceptions.MissingNumberException;
-import distance.AverageLinkDistance;
-import distance.ClusterDistance;
-import distance.SingleLinkDistance;
+import server.clustering.HierachicalClusterMiner;
+import server.clustering.exceptions.InvalidDepthException;
+import server.data.Data;
+import server.database.DbAccess;
+import server.database.TableData;
+import server.database.exceptions.EmptySetException;
+import server.database.exceptions.MissingNumberException;
+import server.distance.AverageLinkDistance;
+import server.distance.ClusterDistance;
+import server.distance.SingleLinkDistance;
 
 /**
  * classe driver del server multithread.

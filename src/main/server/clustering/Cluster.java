@@ -1,11 +1,11 @@
-package clustering;
+package server.clustering;
 
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 import java.io.Serializable;
 
-import data.Data;
+import server.data.Data;
 
 /**
  * Classe che rappresenta il cluster dei vettori Example, salvando

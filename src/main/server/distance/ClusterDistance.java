@@ -1,7 +1,7 @@
-package distance;
+package server.distance;
 
-import clustering.Cluster;
-import data.Data;
+import server.clustering.Cluster;
+import server.data.Data;
 
 /**
  * L'interfaccia ClusterDistance fornisce un metodo per calcolare la distanza

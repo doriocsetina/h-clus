@@ -1,8 +1,8 @@
-package clustering;
+package server.clustering;
 
 import java.io.Serializable;
 
-import data.Data;
+import server.data.Data;
 
 /**
  * Classe che rappresenta il dendrogramma, a cui a ognuno dei livelli viene

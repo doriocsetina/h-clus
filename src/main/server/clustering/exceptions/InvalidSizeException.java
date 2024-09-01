@@ -1,4 +1,4 @@
-package clustering.exceptions;
+package server.clustering.exceptions;
 
 /**
  * Eccezione lanciata quando si calcola la distanza tra due oggetti Example di

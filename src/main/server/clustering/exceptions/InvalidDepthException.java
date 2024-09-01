@@ -1,4 +1,4 @@
-package clustering.exceptions;
+package server.clustering.exceptions;
 
 /**
  * Eccezione lanciata quando la profondità con cui è stato istanziato il

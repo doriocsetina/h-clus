@@ -1,8 +1,8 @@
-package distance;
+package server.distance;
 
-import clustering.Cluster;
-import data.Data;
-import data.Example;
+import server.clustering.Cluster;
+import server.data.Data;
+import server.data.Example;
 
 /**
  * Implementazione dell'interfaccia ClusterDistance che utilizza il metodo

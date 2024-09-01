@@ -1,14 +1,14 @@
-package data;
+package server.data;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import clustering.exceptions.InvalidSizeException;
-import database.DbAccess;
-import database.TableData;
-import database.exceptions.EmptySetException;
-import database.exceptions.MissingNumberException;
+import server.clustering.exceptions.InvalidSizeException;
+import server.database.DbAccess;
+import server.database.TableData;
+import server.database.exceptions.EmptySetException;
+import server.database.exceptions.MissingNumberException;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

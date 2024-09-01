@@ -1,4 +1,4 @@
-package clustering;
+package server.clustering;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -8,9 +8,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import clustering.exceptions.InvalidDepthException;
-import data.Data;
-import distance.ClusterDistance;
+import server.clustering.exceptions.InvalidDepthException;
+import server.data.Data;
+import server.distance.ClusterDistance;
 
 /**
  * Classe responsabile per l'implementazione dell'algoritmo di clustering

@@ -1,12 +1,12 @@
-package database;
+package server.database;
 
 import java.util.LinkedList;
 import java.util.List;
 
-import data.Example;
-import database.exceptions.DatabaseConnectionException;
-import database.exceptions.EmptySetException;
-import database.exceptions.MissingNumberException;
+import server.data.Example;
+import server.database.exceptions.DatabaseConnectionException;
+import server.database.exceptions.EmptySetException;
+import server.database.exceptions.MissingNumberException;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

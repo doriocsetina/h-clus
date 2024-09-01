@@ -1,4 +1,4 @@
-package database.exceptions;
+package server.database.exceptions;
 
 /**
  * Eccezione lanciata se all'interno del database sono presenti valori non numerici. 

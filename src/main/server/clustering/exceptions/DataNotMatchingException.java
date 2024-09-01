@@ -1,4 +1,4 @@
-package clustering.exceptions;
+package server.clustering.exceptions;
 
 /**
  * Eccezione lanciata quando un dendrogramma costruito su un dataset viene applicato a un dataset differente. 
