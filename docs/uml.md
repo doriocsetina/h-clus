@@ -2,6 +2,7 @@
 
 ```plantuml
 @startuml
+
 class GuiController {
     - model: GuiModel
     - view: GuiView
@@ -54,4 +55,5 @@ GuiController ..> ClosingWindowListener
 LoadDendrogramButtonListener -up-|> ActionListener
 CalculateDendrogramButtonListener -up-|> ActionListener
 ClosingWindowListener -up-|> WindowListener
+
 @enduml
