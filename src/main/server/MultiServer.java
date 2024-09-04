@@ -3,8 +3,10 @@ package server;
 import java.io.*;
 import java.net.*;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -22,6 +24,7 @@ import server.database.exceptions.MissingNumberException;
 import server.distance.AverageLinkDistance;
 import server.distance.ClusterDistance;
 import server.distance.SingleLinkDistance;
+import shared.Request;
 
 /**
  * classe driver del server multithread.
@@ -83,45 +86,15 @@ class ServerOneClient extends Thread {
         LOGGER.setLevel(Level.FINE);
         try {
             String clientType = (String) in.readObject();
-            
+
             switch (clientType) {
 
-                case "tui":
-                    while (true) {
-
-                        Data data = loadDataFromClient();
-                        if (data == null) {
-                            break;
-                        }
-                        if (shouldClose) {
-                            break;
-                        }
-
-                        int operationType = (int) in.readObject();
-                        switch (operationType) {
-                            case 1:
-                                // carica dendrogramma da file
-                                handleLoadDendrogram(data);
-                                break;
-                            case 2:
-                                // apprendi dendrogramma da database
-                                handleLearnDendrogram(data);
-                                break;
-                            default:
-                                LOGGER.info("Codice operazione sconosciuto.");
-                                break;
-                        }
-
-                    }
-                    LOGGER.info("closing thread...");
-
+                case "cli":
+                    handleCLIClient();
+                    break;
                 case "gui":
-                    String tableStrings = findTableStrings();
-                    LOGGER.info("sent tables;");
-                    out.writeObject(tableStrings);
-                    while (true) {
-
-                    }
+                    handleGUIClient();
+                    break;
             }
         } catch (IOException e) {
             System.err.println("Socket not closed.");
@@ -131,7 +104,145 @@ class ServerOneClient extends Thread {
         }
     }
 
-    private String findTableStrings() {
+    private void handleCLIClient() {
+        try {
+            while (true) {
+
+                List<String> tables = retrieveTableStrings();
+                String table = loadTableFromCLIClient(tables);
+                System.out.println("this is the table chosen: " + table);
+                if (table == null || shouldClose) {
+                    break;
+                }
+
+                int operationType = (int) in.readObject();
+                switch (operationType) {
+                    case 1:
+                        handleLoadRequest(table, (String) in.readObject());
+                        break;
+                    case 2:
+                        handleCalculateRequest(table, (int) in.readObject(), (int) in.readObject());
+                        break;
+                    default:
+                        LOGGER.info("Codice operazione sconosciuto.");
+                        break;
+                }
+            }
+            LOGGER.info("closing thread...");
+        } catch (IOException | ClassNotFoundException e) {
+            LOGGER.severe("Error handling CLI client: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Carica i dati del database dopo aver ricevuto dal Client CLI il nome della
+     * table
+     * SQL dove sono contenuti i dati.
+     *
+     * @return l'istanza data popolata con i dati contenuti nel DB, o null se non è
+     *         possibile caricare i dati
+     * @throws IOException se si verifica un errore di I/O
+     */
+    private String loadTableFromCLIClient(List<String> tableStrings) throws IOException {
+        LOGGER.fine("The current thread is: " + Thread.currentThread().toString());
+
+        String chosenTable = null;
+        int attempts = 0;
+        while (attempts < 3) {
+            LOGGER.info("The current thread has done: " + attempts + " attempts.");
+            try {
+                int operationType = (int) in.readObject();
+                if (operationType == -1) {
+                    shouldClose = true;
+                    break;
+                }
+                String tableName = (String) in.readObject();
+                if (tableStrings.contains(tableName)) {
+                    chosenTable = tableName;
+                    out.writeObject("OK");
+                    break;
+                } else {
+
+                }
+            } catch (ClassNotFoundException e) {
+                LOGGER.warning("Invalid data received from client");
+                out.writeObject("Ricevuti dati invalidi.");
+                attempts++;
+            }
+
+        }
+        if (chosenTable == null) {
+            out.writeObject("Dopo tre tentativi non è stato possibile caricare i dati. ");
+            return null;
+        }
+
+        return chosenTable;
+    }
+
+    /**
+     * 
+     * @param clustering
+     * @throws ClassNotFoundException
+     * @throws IOException
+     */
+    private void handleCLISaveDendrogram(HierachicalClusterMiner clustering)
+            throws ClassNotFoundException, IOException {
+        String fileName = (String) in.readObject();
+        clustering.save(fileName);
+        LOGGER.fine("file saved.");
+    }
+
+    private void handleGUIClient() {
+        try {
+            out.writeObject("OK");
+            List<String> tableStrings = retrieveTableStrings();
+            out.writeObject(generateJsonFromTableStrings(tableStrings));
+            LOGGER.info("sent tables;");
+            while (true) {
+                String requestJson = (String) in.readObject();
+
+                ObjectMapper objectMapper = new ObjectMapper();
+                Request request = objectMapper.readValue(requestJson, Request.class);
+
+                String header = request.getHeader();
+                Map<String, Object> data = request.getData();
+
+                switch (header) {
+                    case "LOAD_REQUEST":
+                        String tableLoad = (String) data.get("table");
+                        String fileName = (String) data.get("fileName");
+                        handleLoadRequest(tableLoad, fileName);
+                        break;
+
+                    case "CALC_REQUEST":
+                        String tableCalc = (String) data.get("table");
+                        int depth = (Integer) data.get("depth");
+                        int distance = (Integer) data.get("distance");
+                        handleCalculateRequest(tableCalc, depth, distance);
+                        break;
+
+                    default:
+                        LOGGER.info("Unknown request type.");
+                        out.writeObject("ERROR");
+                        break;
+
+                }
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    /**
+     * Recupera le stringhe delle tabelle dal database.
+     * 
+     * @return Lista delle stringhe delle tabelle.
+     */
+    private List<String> retrieveTableStrings() {
         DbAccess db = new DbAccess();
         TableData tableData = new TableData(db);
         List<String> tableStrings = new LinkedList<>();
@@ -140,7 +251,16 @@ class ServerOneClient extends Thread {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return tableStrings;
+    }
 
+    /**
+     * Genera una stringa JSON da una lista di stringhe delle tabelle.
+     * 
+     * @param stringheTabelle Lista delle stringhe delle tabelle.
+     * @return Stringa JSON che rappresenta le stringhe delle tabelle.
+     */
+    private String generateJsonFromTableStrings(List<String> tableStrings) {
         ObjectMapper mapper = new ObjectMapper();
         ArrayNode arrayNode = mapper.createArrayNode();
         for (String tableString : tableStrings) {
@@ -160,70 +280,10 @@ class ServerOneClient extends Thread {
         return jsonString;
     }
 
-    /**
-     * Carica i dati del database dopo aver ricevuto dal Client il nome della table
-     * SQL dove sono contenuti i dati.
-     *
-     * @return l'istanza data popolata con i dati contenuti nel DB, o null se non è
-     *         possibile caricare i dati
-     * @throws IOException se si verifica un errore di I/O
-     */
-    private Data loadDataFromClient() throws IOException {
-        LOGGER.fine("The current thread is: " + Thread.currentThread().toString());
-
-        Data data = null;
-        int attempts = 0;
-        while (data == null && attempts < 3) {
-            LOGGER.info("The current thread has done: " + attempts + " attempts.");
-            try {
-                int operationType = (int) in.readObject();
-                if (operationType == -1) {
-                    shouldClose = true;
-                    break;
-                }
-                String tableName = (String) in.readObject();
-                data = new Data(tableName);
-                LOGGER.info("Loaded the database;");
-                LOGGER.fine("data checksum: " + data.generateChecksum());
-                out.writeObject("OK");
-            } catch (SQLException | EmptySetException | MissingNumberException e) {
-                LOGGER.warning(e.getMessage());
-                out.writeObject(e.getMessage());
-                attempts++;
-            } catch (ClassNotFoundException e) {
-                LOGGER.warning("Invalid data received from client");
-                out.writeObject("Ricevuti dati invalidi.");
-                attempts++;
-            }
-
-        }
-        if (data == null) {
-            out.writeObject("Dopo tre tentativi non è stato possibile caricare i dati. ");
-            return null;
-        }
-
-        return data;
-    }
-
-    /**
-     * Gestisce l'operazione di caricamento del dendrogramma a partire dal file
-     * specificato dal client e restituisce al client la stringa contenente il
-     * dendrogramma popolato; restituisce un messaggio di errore
-     * nel caso vengano lanciate delle eccezioni.
-     * 
-     * Nel caso in cui il dendrogramma caricato da file è stato costruito su dei
-     * dati diversi da quelli contenuti nella table specificata il metodo ritorna al
-     * client un messaggio d'errore.
-     *
-     * @param data i dati da utilizzare
-     * @throws IOException            se si verifica un errore di I/O
-     * @throws ClassNotFoundException se si verifica un errore durante la lettura
-     *                                dell'oggetto
-     */
-    private void handleLoadDendrogram(Data data) throws IOException, ClassNotFoundException {
-        LOGGER.info("Handling loading dendrogram from file.");
-        String fileName = (String) in.readObject();
+    private void handleLoadRequest(String table, String fileName) throws IOException, ClassNotFoundException {
         try {
+            Data data = new Data(table);
+
             HierachicalClusterMiner clustering = HierachicalClusterMiner.load(fileName);
 
             if (clustering.validateData(data)) {
@@ -234,58 +294,41 @@ class ServerOneClient extends Thread {
                         "ERRORE: il dendrogramma non è stato costruito "
                                 + "dai dati contenuti nel database.");
             }
-        } catch (FileNotFoundException e) {
-            out.writeObject(e.getMessage());
+
+        } catch (SQLException | EmptySetException | MissingNumberException e) {
+            e.printStackTrace();
         }
+
     }
 
-    /**
-     * Gestisce l'operazione di apprendimento del dendrogramma a partire dai dati
-     * precedendemente ottenuti tramite il database e inizializza l'operazione di
-     * mining sui dati forniti in input. Al client viene richiesto la distanza da
-     * utilizzare. Al termine dell'operazione ritorna al client la stringa
-     * rappresentante del dendrogramma ottenuto. Successivamente il dendrogramma
-     * ottenuto viene serializzato su disco con il nome specificato dal client.
-     *
-     * @param data i dati da utilizzare
-     * @throws IOException            se si verifica un errore di I/O
-     * @throws ClassNotFoundException se si verifica un errore durante la lettura
-     *                                dell'oggetto
-     */
-    private void handleLearnDendrogram(Data data) throws IOException, ClassNotFoundException {
-        LOGGER.info("Handling learning dendrogram from database.");
-        // apprendi dendrogramma da database;
-        int depth = (int) in.readObject();
-        HierachicalClusterMiner clustering = new HierachicalClusterMiner(depth);
-        int distanceInt = (int) in.readObject();
-        ClusterDistance distance = new AverageLinkDistance();
-        switch (distanceInt) {
-            case 1:
+    private void handleCalculateRequest(String table, int depth, int distanceInt)
+            throws IOException, ClassNotFoundException {
+        try {
+            Data data = new Data(table);
+            HierachicalClusterMiner clustering = new HierachicalClusterMiner(depth);
+            ClusterDistance distance = new AverageLinkDistance();
+            switch (distanceInt) {
+                case 1:
                 distance = new SingleLinkDistance();
                 break;
-            case 2:
+                case 2:
                 distance = new AverageLinkDistance();
                 break;
-            default:
+                default:
                 throw new IllegalArgumentException("Tipo di distanza invalida: " + distanceInt);
-        }
-        try {
-            clustering.mine(data, distance);
-            out.writeObject("OK");
-            out.writeObject(clustering.toString(data));
-            handleSaveDendrogram(clustering);
-        } catch (InvalidDepthException e) {
+            }
+            try {
+                clustering.mine(data, distance);
+                out.writeObject("OK");
+                out.writeObject(clustering.toString(data));
+                handleCLISaveDendrogram(clustering);
+            } catch (InvalidDepthException e) {
+                e.printStackTrace();
+            } 
+        } catch (SQLException | EmptySetException | MissingNumberException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (EOFException e) {
-            System.err.println("catched an eof exception. ");
-            e.printStackTrace();
         }
-
     }
 
-    private void handleSaveDendrogram(HierachicalClusterMiner clustering) throws ClassNotFoundException, IOException {
-        String fileName = (String) in.readObject();
-        clustering.save(fileName);
-        LOGGER.fine("file saved.");
-    }
 }

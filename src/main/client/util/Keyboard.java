@@ -1,4 +1,4 @@
-package util;
+package client.util;
 //********************************************************************
 
 //  Keyboard.java       Author: Lewis and Loftus

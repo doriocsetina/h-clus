@@ -6,7 +6,7 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
-import util.Keyboard;
+import client.util.Keyboard;
 
 public class MainTest {
 
@@ -98,7 +98,7 @@ public class MainTest {
 		MainTest main = null;
 		try {
 			main = new MainTest(ip, port);
-			main.out.writeObject("tui");
+			main.out.writeObject("cli");
 			main.loadDataOnServer();
 			int scelta = main.menu();
 			if (scelta == 1)

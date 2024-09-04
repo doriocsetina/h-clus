@@ -3,6 +3,7 @@ package client.gui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.List;
 
 public class GuiController {
     private GuiModel model;
@@ -19,45 +20,78 @@ public class GuiController {
     class ConnectButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            /**
-             * try {
-             * String ipAddress = view.getIpAddress();
-             * int port = Integer.parseInt(view.getPort());
-             * model.setConnectionDetails(ipAddress, port);
-             * 
-             * // Simulate server connection and data retrieval
-             * String tabsJson = "{\"tables\": [\"Table1\", \"Table2\"]}";
-             * model.decodeJsonString(tabsJson);
-             * 
-             * view.setOutputText(model.decodeJsonString(tabsJson).toString());
-             * view.setErrorMessage("");
-             * } catch (NumberFormatException ex) {
-             * view.setErrorMessage("Invalid port number.");
-             * } catch (Exception ex) {
-             * view.setErrorMessage("Connection failed: " + ex.getMessage());
-             * }
-             */
+            try {
+                String ipAddress = view.getIpAddress();
+                int port = Integer.parseInt(view.getPort());
+                model.connectToServer(ipAddress, port);
+
+                List<String> tables = model.decodeJsonString(model.receiveJsonTables());
+
+                view.closeLoginFrame();
+
+                view.createAndShowMainGUI(tables);
+                view.addCalculateButtonListener(new CalculateDendrogramButtonListener());
+                view.addLoadButtonListener(new LoadDendrogramButtonListener());
+            } catch (IOException ex) {
+                view.setErrorMessage(ex.getMessage());
+                ex.printStackTrace();
+            } catch (ClassNotFoundException ex) {
+                view.setErrorMessage(ex.getMessage());
+                ex.printStackTrace();
+            }
         }
     }
 
     class LoadDendrogramButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            // TODO: Implement load data functionality
+            try {
+                view.setOutputText(
+                        model.sendLoadRequest(
+                                view.getTable(),
+                                view.getFileName()));
+            } catch (IOException ex) {
+                view.setErrorMessage(ex.getMessage());
+                ex.printStackTrace();
+            } catch (ClassNotFoundException ex) {
+                view.setErrorMessage(ex.getMessage());
+                ex.printStackTrace();
+            }
         }
     }
 
-    class LearnDendrogramButtonListener implements ActionListener {
+    class CalculateDendrogramButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
+            try {
+                int distance = 1;
+                switch (view.getDistanceString()) {
+                    case "Single-link":
+                        distance = 1;
+                        break;
+                    case "Average-link":
+                        distance = 2;
+                        break;
+                }
 
+                view.setOutputText(model.sendCalculateRequest(
+                        view.getTable(),
+                        view.getDepth(),
+                        distance));
+            } catch (IOException ex) {
+                view.setErrorMessage(ex.getMessage());
+                ex.printStackTrace();
+            } catch (ClassNotFoundException ex) {
+                view.setErrorMessage(ex.getMessage());
+                ex.printStackTrace();
+            }
         }
     }
 
     class SaveDendrogramButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            
+
         }
     }
 }

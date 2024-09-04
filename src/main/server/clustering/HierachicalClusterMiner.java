@@ -63,6 +63,29 @@ public class HierachicalClusterMiner implements Serializable {
 	}
 
 	/**
+	 * Carica un'istanza di HierarchicalClusterMiner a partire dallo stream ricevuto
+	 * in input.
+	 * 
+	 * @param inFile il file serializzato ricevuto.
+	 * @return istanza di HierarchicalClusterMiner serializzata caricata dalla
+	 *         funzione.
+	 * @throws FileNotFoundException  lanciata se nel path specificato non è stato
+	 *                                trovato nessun file, o il file non è apribile
+	 *                                in nessun modo.
+	 * @throws IOException            lanciata nel caso di errore durante la lettura
+	 *                                del file.
+	 * @throws ClassNotFoundException lanciata nel caso in cui l'oggetto
+	 *                                serializzato che si vuole caricare non è
+	 *                                istanza di nessuna classe.
+	 */
+	public static HierachicalClusterMiner loadFromFile(FileInputStream inFile)
+			throws FileNotFoundException, IOException, ClassNotFoundException {
+		try (ObjectInputStream inStream = new ObjectInputStream(inFile)) {
+			return (HierachicalClusterMiner) inStream.readObject();
+		}
+	}
+
+	/**
 	 * Salva l'istanza corrente di HierarchicalClusterMiner serializzandola e
 	 * scrivendola su disco al percorso specificato
 	 * 
