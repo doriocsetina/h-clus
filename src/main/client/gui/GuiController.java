@@ -25,7 +25,6 @@ public class GuiController {
         this.view = view;
 
         this.view.addConnectButtonListener(new ConnectButtonListener());
-        this.view.addLoadButtonListener(new LoadDendrogramButtonListener());
     }
 
     /**
