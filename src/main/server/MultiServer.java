@@ -110,7 +110,6 @@ class ServerOneClient extends Thread {
 
                 List<String> tables = retrieveTableStrings();
                 String table = loadTableFromCLIClient(tables);
-                System.out.println("this is the table chosen: " + table);
                 if (table == null || shouldClose) {
                     break;
                 }
@@ -121,7 +120,7 @@ class ServerOneClient extends Thread {
                         handleLoadRequest(table, (String) in.readObject());
                         break;
                     case 2:
-                        handleCalculateRequest(table, (int) in.readObject(), (int) in.readObject());
+                        handleCalculateRequest(table, (int) in.readObject(), (int) in.readObject(), true);
                         break;
                     default:
                         LOGGER.info("Codice operazione sconosciuto.");
@@ -199,8 +198,9 @@ class ServerOneClient extends Thread {
             out.writeObject(generateJsonFromTableStrings(tableStrings));
             LOGGER.info("sent tables;");
             while (true) {
+                LOGGER.info("new loop for the client");
                 String requestJson = (String) in.readObject();
-
+                System.err.println("client sent this: " + requestJson);
                 ObjectMapper objectMapper = new ObjectMapper();
                 Request request = objectMapper.readValue(requestJson, Request.class);
 
@@ -218,9 +218,8 @@ class ServerOneClient extends Thread {
                         String tableCalc = (String) data.get("table");
                         int depth = (Integer) data.get("depth");
                         int distance = (Integer) data.get("distance");
-                        handleCalculateRequest(tableCalc, depth, distance);
+                        handleCalculateRequest(tableCalc, depth, distance, false);
                         break;
-
                     default:
                         LOGGER.info("Unknown request type.");
                         out.writeObject("ERROR");
@@ -295,13 +294,14 @@ class ServerOneClient extends Thread {
                                 + "dai dati contenuti nel database.");
             }
 
-        } catch (SQLException | EmptySetException | MissingNumberException e) {
+        } catch (SQLException | EmptySetException | MissingNumberException | FileNotFoundException e) {
+            out.writeObject(e.getMessage());
             e.printStackTrace();
         }
 
     }
 
-    private void handleCalculateRequest(String table, int depth, int distanceInt)
+    private void handleCalculateRequest(String table, int depth, int distanceInt, boolean isCLI)
             throws IOException, ClassNotFoundException {
         try {
             Data data = new Data(table);
@@ -309,24 +309,27 @@ class ServerOneClient extends Thread {
             ClusterDistance distance = new AverageLinkDistance();
             switch (distanceInt) {
                 case 1:
-                distance = new SingleLinkDistance();
-                break;
+                    distance = new SingleLinkDistance();
+                    break;
                 case 2:
-                distance = new AverageLinkDistance();
-                break;
+                    distance = new AverageLinkDistance();
+                    break;
                 default:
-                throw new IllegalArgumentException("Tipo di distanza invalida: " + distanceInt);
+                    throw new IllegalArgumentException("Tipo di distanza invalida: " + distanceInt);
             }
             try {
                 clustering.mine(data, distance);
                 out.writeObject("OK");
                 out.writeObject(clustering.toString(data));
-                handleCLISaveDendrogram(clustering);
+                if (isCLI)
+                    handleCLISaveDendrogram(clustering);
             } catch (InvalidDepthException e) {
+                System.out.println("l'invalida profondità eccezione è avvenuta.");
+                out.writeObject(e.getMessage());
                 e.printStackTrace();
-            } 
+            }
         } catch (SQLException | EmptySetException | MissingNumberException e) {
-            // TODO Auto-generated catch block
+            out.writeObject(e.getMessage());
             e.printStackTrace();
         }
     }

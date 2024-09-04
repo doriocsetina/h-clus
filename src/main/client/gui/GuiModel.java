@@ -76,10 +76,11 @@ public class GuiModel {
         System.out.println(calcJson);
 
         out.writeObject(calcJson);
-        if ((String) in.readObject() == "OK")
+        String response = (String) in.readObject();
+        if (response.equals("OK"))
             return (String) in.readObject();
         else
-            return (String) in.readObject();
+            return "An error has occured: " + response;
     }
 
     public String sendLoadRequest(String table, String fileName) throws IOException, ClassNotFoundException {
@@ -97,10 +98,10 @@ public class GuiModel {
 
         out.writeObject(loadJson);
         String response = (String) in.readObject();
-        if ("OK".equals(response)) {
+        if (response.equals("OK")) {
             return (String) in.readObject();
         } else {
-            return "ERROR";
+            return "An error has occured: " + response;
         }
     }
 
