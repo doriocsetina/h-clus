@@ -1,18 +1,17 @@
 package client.gui;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.text.NumberFormatter;
-
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.text.NumberFormat;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.util.List;
 
 public class GuiView {
     private JFrame loginFrame;
     private JTextField ipField;
     private JTextField portField;
+    private JLabel infoMessage;
     private JLabel errorMessage;
     private JButton connectButton;
 
@@ -24,17 +23,16 @@ public class GuiView {
     private JRadioButton loadFromServer;
     private JButton loadButton;
 
-    private JFormattedTextField depthField;
+    private JTextField depthField;
     private JComboBox<String> distanceTypeBox;
     private JButton calculateButton;
+    private JCheckBox saveCheckBox;
+    private JTextField saveNameField;
 
     private JTextArea outputArea;
-    private JTextField saveNameField;
-    private JButton saveButton;
 
     public GuiView() {
         createAndShowLoginGUI();
-
     }
 
     private void createAndShowLoginGUI() {
@@ -53,7 +51,6 @@ public class GuiView {
         gridPanel.add(portField);
 
         connectButton = new JButton("Connect");
-
         gridPanel.add(connectButton);
 
         JPanel paddedPanel = new JPanel(new BorderLayout());
@@ -87,8 +84,10 @@ public class GuiView {
 
         // combobox SQL tables
         availableTabsBox = new JComboBox<>(tables.toArray(new String[0]));
-        mainPanel.add(new JLabel("Table name:"), BorderLayout.NORTH);
-        mainPanel.add(availableTabsBox, BorderLayout.NORTH);
+        JPanel tablePanel = new JPanel(new BorderLayout());
+        tablePanel.add(new JLabel("Table name:    "), BorderLayout.WEST);
+        tablePanel.add(availableTabsBox, BorderLayout.CENTER);
+        mainPanel.add(tablePanel, BorderLayout.NORTH);
 
         // pannello adibito al caricamento del dendrogramma
         JPanel loadDataPanel = new JPanel(new GridLayout(3, 2, 10, 10));
@@ -101,7 +100,7 @@ public class GuiView {
         loadFromClient = new JRadioButton("Load from client");
         loadFromServer = new JRadioButton("Load from server");
         ButtonGroup loadGroup = new ButtonGroup();
-        loadFromClient.setSelected(true);
+        loadFromServer.setSelected(true);
         loadGroup.add(loadFromClient);
         loadGroup.add(loadFromServer);
         loadDataPanel.add(loadFromClient);
@@ -111,16 +110,28 @@ public class GuiView {
         loadDataPanel.add(loadButton);
 
         // pannello adibito al calcolo del dendrogramma
-        JPanel dendrogramPanel = new JPanel(new GridLayout(3, 2, 10, 10));
+        JPanel dendrogramPanel = new JPanel(new GridLayout(4, 2, 10, 10));
         dendrogramPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        depthField = createIntegerField();
+        depthField = new JTextField();
         dendrogramPanel.add(new JLabel("Dendrogram depth:"));
         dendrogramPanel.add(depthField);
 
         distanceTypeBox = new JComboBox<>(new String[] { "Single-link", "Average-link" });
         dendrogramPanel.add(new JLabel("Distance type:"));
         dendrogramPanel.add(distanceTypeBox);
+
+        saveCheckBox = new JCheckBox("Save with filename: ");
+        saveNameField = new JTextField();
+        saveNameField.setEnabled(false); // Initially disabled
+        saveCheckBox.addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                saveNameField.setEnabled(e.getStateChange() == ItemEvent.SELECTED);
+            }
+        });
+        dendrogramPanel.add(saveCheckBox);
+        dendrogramPanel.add(saveNameField);
 
         calculateButton = new JButton("Calculate Dendrogram");
         dendrogramPanel.add(calculateButton);
@@ -136,43 +147,24 @@ public class GuiView {
         JScrollPane scrollPane = new JScrollPane(outputArea);
         scrollPane.setPreferredSize(new Dimension(400, 200));
         outputPanel.add(scrollPane, BorderLayout.CENTER);
+        outputPanel.add(errorMessage, BorderLayout.SOUTH);
 
-        JPanel bottomPanel = new JPanel(new BorderLayout());
-        saveNameField = new JTextField();
-        saveButton = new JButton("Save dendrogram");
-
-        bottomPanel.add(errorMessage, BorderLayout.NORTH);
-        bottomPanel.add(saveNameField, BorderLayout.CENTER);
-        bottomPanel.add(saveButton, BorderLayout.EAST);
-        outputPanel.add(bottomPanel, BorderLayout.SOUTH);
+        infoMessage = new JLabel();
+        outputPanel.add(infoMessage, BorderLayout.SOUTH);
 
         // unione dei pannelli di input e output
         JSplitPane verticalSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, horizontalSplitPane, outputPanel);
-        horizontalSplitPane.setResizeWeight(0.3);
+        verticalSplitPane.setResizeWeight(0.3);
 
         mainPanel.add(verticalSplitPane, BorderLayout.CENTER);
-        
+
         mainFrame.add(mainPanel, BorderLayout.CENTER);
         mainFrame.pack();
         mainFrame.setLocationRelativeTo(null);
         mainFrame.setVisible(true);
     }
 
-    private JFormattedTextField createIntegerField() {
-        NumberFormat format = NumberFormat.getIntegerInstance();
-        NumberFormatter formatter = new NumberFormatter(format);
-        formatter.setValueClass(Integer.class);
-        formatter.setAllowsInvalid(true); // Allow invalid input to be corrected
-        formatter.setCommitsOnValidEdit(true);
-        formatter.setMinimum(0); // Set minimum value if needed
-        formatter.setMaximum(Integer.MAX_VALUE); // Set maximum value if needed
-
-        JFormattedTextField field = new JFormattedTextField(formatter);
-        field.setColumns(10); // Set the preferred width of the field
-        return field;
-    }
     // login getters
-
     public String getIpAddress() {
         return ipField.getText();
     }
@@ -182,42 +174,53 @@ public class GuiView {
     }
 
     // load getter
-
-    public String getTable() {
+    public String getTableString() {
         return availableTabsBox.getSelectedItem().toString();
     }
 
-    public String getFileName() {
+    public String getFileNameString() {
         return fileNameField.getText();
     }
 
-    public boolean isLoadFromClient() {
-        return loadFromClient.isSelected();
+    public boolean isLoadFromServer() {
+        return loadFromServer.isSelected();
     }
 
     // calculate getters
-
-    // TODO fix this
-    public int getDepth() {
-        return Integer.parseInt(depthField.getText());
+    public String getDepthString() {
+        return depthField.getText();
     }
 
     public String getDistanceString() {
         return distanceTypeBox.getSelectedItem().toString();
     }
 
-    // setters
+    public String getSaveFileString() {
+        return saveNameField.getText();
+    }
 
+    public boolean isSaving() {
+        return saveCheckBox.isSelected();
+    }
+
+    // setters
     public void setErrorMessage(String message) {
         errorMessage.setText(message);
+    }
+
+    public void setInfoMessage(String message) {
+        infoMessage.setText(message);
     }
 
     public void setOutputText(String text) {
         outputArea.setText(text);
     }
 
-    // listeners
+    public void setSaveFileString(String text) {
+        saveNameField.setText(text);
+    }
 
+    // listeners
     public void addConnectButtonListener(ActionListener listener) {
         connectButton.addActionListener(listener);
     }
@@ -230,7 +233,7 @@ public class GuiView {
         calculateButton.addActionListener(listener);
     }
 
-    public void addSaveButtonListener(ActionListener listener) {
-        saveButton.addActionListener(listener);
+    public void addSaveCheckBoxListener(ActionListener listener) {
+        saveCheckBox.addActionListener(listener);
     }
 }

@@ -21,23 +21,24 @@ public class GuiController {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                String ipAddress = view.getIpAddress();
-                int port = Integer.parseInt(view.getPort());
-                model.connectToServer(ipAddress, port);
+
+                model.connectToServer(
+                        view.getIpAddress(),
+                        Integer.parseInt(view.getPort()));
 
                 List<String> tables = model.decodeJsonString(model.receiveJsonTables());
 
                 view.closeLoginFrame();
 
                 view.createAndShowMainGUI(tables);
-                view.addCalculateButtonListener(new CalculateDendrogramButtonListener());
                 view.addLoadButtonListener(new LoadDendrogramButtonListener());
-            } catch (IOException ex) {
+                view.addCalculateButtonListener(new CalculateDendrogramButtonListener());
+                view.setErrorMessage("");
+            } catch (IOException | ClassNotFoundException ex) {
                 view.setErrorMessage(ex.getMessage());
                 ex.printStackTrace();
-            } catch (ClassNotFoundException ex) {
-                view.setErrorMessage(ex.getMessage());
-                ex.printStackTrace();
+            } catch (NumberFormatException ex) {
+                view.setErrorMessage("La porta dev'essere necessariamente un numero intero positivo.");
             }
         }
     }
@@ -48,12 +49,10 @@ public class GuiController {
             try {
                 view.setOutputText(
                         model.sendLoadRequest(
-                                view.getTable(),
-                                view.getFileName()));
-            } catch (IOException ex) {
-                view.setErrorMessage(ex.getMessage());
-                ex.printStackTrace();
-            } catch (ClassNotFoundException ex) {
+                                view.getTableString(),
+                                view.getFileNameString()));
+                view.setErrorMessage("");
+            } catch (IOException | ClassNotFoundException ex) {
                 view.setErrorMessage(ex.getMessage());
                 ex.printStackTrace();
             }
@@ -73,25 +72,32 @@ public class GuiController {
                         distance = 2;
                         break;
                 }
+                if (!view.isSaving()
+                        || (view.isSaving() && !view.getSaveFileString().equals(""))) {
+                    view.setOutputText(
+                            model.sendCalculateRequest(
+                                    view.getTableString(),
+                                    Integer.parseInt(view.getDepthString()),
+                                    distance,
+                                    view.isSaving(),
+                                    view.getSaveFileString()));
 
-                view.setOutputText(model.sendCalculateRequest(
-                        view.getTable(),
-                        view.getDepth(),
-                        distance));
-            } catch (IOException ex) {
+                    view.setErrorMessage("");
+
+                    if (view.isSaving())
+                        view.setInfoMessage("File salvato con successo!");
+                    else
+                        view.setInfoMessage("");
+                } else
+                    view.setErrorMessage("Specificare un nome per salvare il file. ");
+                view.setSaveFileString("");
+            } catch (IOException | ClassNotFoundException ex) {
                 view.setErrorMessage(ex.getMessage());
                 ex.printStackTrace();
-            } catch (ClassNotFoundException ex) {
-                view.setErrorMessage(ex.getMessage());
-                ex.printStackTrace();
+            } catch (NumberFormatException ex) {
+                view.setErrorMessage("La profondità dev'essere necessariamente un numero intero positivo.");
             }
         }
     }
 
-    class SaveDendrogramButtonListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-
-        }
-    }
 }

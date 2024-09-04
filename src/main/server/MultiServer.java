@@ -3,7 +3,7 @@ package server;
 import java.io.*;
 import java.net.*;
 import java.sql.SQLException;
-import java.util.HashMap;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -104,6 +104,53 @@ class ServerOneClient extends Thread {
         }
     }
 
+    private void handleGUIClient() {
+        try {
+            out.writeObject("OK");
+            List<String> tableStrings = retrieveTableStrings();
+            out.writeObject(generateJsonFromTableStrings(tableStrings));
+            LOGGER.info("sent tables;");
+            while (true) {
+                LOGGER.info("new loop for the client");
+                String requestJson = (String) in.readObject();
+                System.err.println("client sent this: " + requestJson);
+                ObjectMapper objectMapper = new ObjectMapper();
+                Request request = objectMapper.readValue(requestJson, Request.class);
+
+                String header = request.getHeader();
+                Map<String, Object> data = request.getData();
+
+                switch (header) {
+                    case "LOAD_REQUEST":
+                        String tableLoad = (String) data.get("table");
+                        String fileName = (String) data.get("fileName");
+                        handleLoadRequest(tableLoad, fileName);
+                        break;
+
+                    case "CALC_REQUEST":
+                        String tableCalc = (String) data.get("table");
+                        int depth = (Integer) data.get("depth");
+                        int distance = (Integer) data.get("distance");
+                        boolean save = (boolean) data.get("save");
+                        String saveName = (String) data.get("saveName");
+                        handleCalculateRequest(tableCalc, depth, distance, false, save, saveName);
+                        break;
+                    default:
+                        LOGGER.info("Unknown request type.");
+                        out.writeObject("ERROR");
+                        break;
+
+                }
+
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     private void handleCLIClient() {
         try {
             while (true) {
@@ -120,7 +167,7 @@ class ServerOneClient extends Thread {
                         handleLoadRequest(table, (String) in.readObject());
                         break;
                     case 2:
-                        handleCalculateRequest(table, (int) in.readObject(), (int) in.readObject(), true);
+                        handleCalculateRequest(table, (int) in.readObject(), (int) in.readObject(), true, false, "");
                         break;
                     default:
                         LOGGER.info("Codice operazione sconosciuto.");
@@ -178,62 +225,63 @@ class ServerOneClient extends Thread {
         return chosenTable;
     }
 
-    /**
-     * 
-     * @param clustering
-     * @throws ClassNotFoundException
-     * @throws IOException
-     */
-    private void handleCLISaveDendrogram(HierachicalClusterMiner clustering)
-            throws ClassNotFoundException, IOException {
-        String fileName = (String) in.readObject();
-        clustering.save(fileName);
-        LOGGER.fine("file saved.");
-    }
-
-    private void handleGUIClient() {
+    private void handleLoadRequest(String table, String fileName) throws IOException, ClassNotFoundException {
         try {
-            out.writeObject("OK");
-            List<String> tableStrings = retrieveTableStrings();
-            out.writeObject(generateJsonFromTableStrings(tableStrings));
-            LOGGER.info("sent tables;");
-            while (true) {
-                LOGGER.info("new loop for the client");
-                String requestJson = (String) in.readObject();
-                System.err.println("client sent this: " + requestJson);
-                ObjectMapper objectMapper = new ObjectMapper();
-                Request request = objectMapper.readValue(requestJson, Request.class);
+            Data data = new Data(table);
 
-                String header = request.getHeader();
-                Map<String, Object> data = request.getData();
+            HierachicalClusterMiner clustering = HierachicalClusterMiner.load(fileName);
 
-                switch (header) {
-                    case "LOAD_REQUEST":
-                        String tableLoad = (String) data.get("table");
-                        String fileName = (String) data.get("fileName");
-                        handleLoadRequest(tableLoad, fileName);
-                        break;
-
-                    case "CALC_REQUEST":
-                        String tableCalc = (String) data.get("table");
-                        int depth = (Integer) data.get("depth");
-                        int distance = (Integer) data.get("distance");
-                        handleCalculateRequest(tableCalc, depth, distance, false);
-                        break;
-                    default:
-                        LOGGER.info("Unknown request type.");
-                        out.writeObject("ERROR");
-                        break;
-
-                }
-
+            if (clustering.validateData(data)) {
+                out.writeObject("OK");
+                out.writeObject(clustering.toString(data));
+            } else {
+                out.writeObject(
+                        "ERRORE: il dendrogramma non è stato costruito "
+                                + "dai dati contenuti nel database.");
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+
+        } catch (SQLException | EmptySetException | MissingNumberException | FileNotFoundException e) {
+            out.writeObject(e.getMessage());
             e.printStackTrace();
         }
 
+    }
+
+    private void handleCalculateRequest(String table, int depth, int distanceInt, boolean isCLI, boolean save,
+            String fileName)
+            throws IOException, ClassNotFoundException {
+        try {
+            Data data = new Data(table);
+            HierachicalClusterMiner clustering = new HierachicalClusterMiner(depth);
+            ClusterDistance distance = new AverageLinkDistance();
+            switch (distanceInt) {
+                case 1:
+                    distance = new SingleLinkDistance();
+                    break;
+                case 2:
+                    distance = new AverageLinkDistance();
+                    break;
+                default:
+                    throw new IllegalArgumentException("Tipo di distanza invalida: " + distanceInt);
+            }
+            try {
+                clustering.mine(data, distance);
+                out.writeObject("OK");
+                out.writeObject(clustering.toString(data));
+                if (isCLI) {
+                    fileName = (String) in.readObject();
+                    clustering.save(fileName);
+                } else if (save)
+                    clustering.save(fileName);
+
+            } catch (InvalidDepthException e) {
+                out.writeObject(e.getMessage());
+                e.printStackTrace();
+            }
+        } catch (SQLException | EmptySetException | MissingNumberException e) {
+            out.writeObject(e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -277,61 +325,6 @@ class ServerOneClient extends Thread {
         }
         System.out.println(jsonString);
         return jsonString;
-    }
-
-    private void handleLoadRequest(String table, String fileName) throws IOException, ClassNotFoundException {
-        try {
-            Data data = new Data(table);
-
-            HierachicalClusterMiner clustering = HierachicalClusterMiner.load(fileName);
-
-            if (clustering.validateData(data)) {
-                out.writeObject("OK");
-                out.writeObject(clustering.toString(data));
-            } else {
-                out.writeObject(
-                        "ERRORE: il dendrogramma non è stato costruito "
-                                + "dai dati contenuti nel database.");
-            }
-
-        } catch (SQLException | EmptySetException | MissingNumberException | FileNotFoundException e) {
-            out.writeObject(e.getMessage());
-            e.printStackTrace();
-        }
-
-    }
-
-    private void handleCalculateRequest(String table, int depth, int distanceInt, boolean isCLI)
-            throws IOException, ClassNotFoundException {
-        try {
-            Data data = new Data(table);
-            HierachicalClusterMiner clustering = new HierachicalClusterMiner(depth);
-            ClusterDistance distance = new AverageLinkDistance();
-            switch (distanceInt) {
-                case 1:
-                    distance = new SingleLinkDistance();
-                    break;
-                case 2:
-                    distance = new AverageLinkDistance();
-                    break;
-                default:
-                    throw new IllegalArgumentException("Tipo di distanza invalida: " + distanceInt);
-            }
-            try {
-                clustering.mine(data, distance);
-                out.writeObject("OK");
-                out.writeObject(clustering.toString(data));
-                if (isCLI)
-                    handleCLISaveDendrogram(clustering);
-            } catch (InvalidDepthException e) {
-                System.out.println("l'invalida profondità eccezione è avvenuta.");
-                out.writeObject(e.getMessage());
-                e.printStackTrace();
-            }
-        } catch (SQLException | EmptySetException | MissingNumberException e) {
-            out.writeObject(e.getMessage());
-            e.printStackTrace();
-        }
     }
 
 }

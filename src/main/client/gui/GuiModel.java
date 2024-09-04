@@ -22,6 +22,7 @@ public class GuiModel {
     private Socket socket;
 
     private InetAddress address;
+    @SuppressWarnings("unused")
     private int port;
 
     public boolean connectToServer(String ip, int port) throws IOException, ClassNotFoundException {
@@ -63,11 +64,13 @@ public class GuiModel {
         return tableStrings;
     }
 
-    public String sendCalculateRequest(String table, int depth, int distance) throws IOException, ClassNotFoundException {
+    public String sendCalculateRequest(String table, int depth, int distance, boolean save, String saveName) throws IOException, ClassNotFoundException {
         Map<String, Object> data = new HashMap<>();
         data.put("table", table);
         data.put("depth", depth);
         data.put("distance", distance);
+        data.put("save", save);
+        data.put("saveName", saveName);
 
         Request request = new Request("CALC_REQUEST", data);
 

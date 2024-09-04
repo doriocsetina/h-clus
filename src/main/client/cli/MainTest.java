@@ -39,7 +39,7 @@ public class MainTest {
 		return answer;
 
 	}
-
+ 
 	private void loadDataOnServer() throws IOException, ClassNotFoundException {
 		boolean flag = false;
 		do {
