@@ -169,10 +169,16 @@ public class GuiView {
         JScrollPane scrollPane = new JScrollPane(outputArea);
         scrollPane.setPreferredSize(new Dimension(400, 200));
         outputPanel.add(scrollPane, BorderLayout.CENTER);
-        outputPanel.add(errorMessage, BorderLayout.SOUTH);
+
+        JPanel messagePanel = new JPanel(new GridLayout(2, 1));
+        errorMessage = new JLabel();
+        errorMessage.setForeground(Color.RED);
+        messagePanel.add(errorMessage);
 
         infoMessage = new JLabel();
-        outputPanel.add(infoMessage, BorderLayout.SOUTH);
+        messagePanel.add(infoMessage);
+
+        outputPanel.add(messagePanel, BorderLayout.SOUTH);
 
         // unione dei pannelli di input e output
         JSplitPane verticalSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, horizontalSplitPane, outputPanel);

@@ -20,8 +20,6 @@ $sourceFiles = Get-ChildItem -Path src -Recurse -Filter *.java | ForEach-Object 
 $classpath = "lib/*;."
 javac -cp $classpath -d target $sourceFiles
 
-Write-Output "Creating MainTest.jar"
-jar cfe MainTest.jar MainTest -C target/ .
 
 Write-Output "Extracting dependencies from driver"
 
@@ -31,8 +29,14 @@ Get-ChildItem -Path ../lib -Filter *.jar | ForEach-Object {
 }
 Pop-Location
 
+Write-Output "Creating MainTest.jar"
+jar cfe MainTest.jar client.cli.MainTest -C target/ .
+
 Write-Output "Creating MultiServer.jar"
 jar cfe MultiServer.jar server.MultiServer -C target/ .
 
+Write-Output "Creating GuiClient.jar"
+jar cfe GuiClient.jar client.gui.GuiDriver -C target/ .
+
 Write-Output "Cleaning..."
-# Remove-Item -Recurse -Force target/
+Remove-Item -Recurse -Force target/
