@@ -29,7 +29,7 @@ CREATE TABLE secondTab(
     X1 float,
     X2 float,
     X3 float,
-    X5 float
+    X4 float
 );
 
 -- POPULATING TABLE ---

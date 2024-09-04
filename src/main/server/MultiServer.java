@@ -27,7 +27,10 @@ import server.distance.SingleLinkDistance;
 import shared.Request;
 
 /**
- * classe driver del server multithread.
+ * Classe driver del server multithread.
+ * 
+ * Contiene l'intera logica del server e l'implementazione dei thread
+ * {@link ServerOneClient}, che si occupano di ogni client separatamente.
  */
 public class MultiServer {
     static final int PORT = 8080;
@@ -59,6 +62,7 @@ public class MultiServer {
  */
 class ServerOneClient extends Thread {
     private static final Logger LOGGER = Logger.getLogger(ServerOneClient.class.getName());
+    private static final ObjectMapper objectMapper = new ObjectMapper();
     private boolean shouldClose = false;
     private Socket socket;
     private ObjectInputStream in;
@@ -81,6 +85,8 @@ class ServerOneClient extends Thread {
 
     /**
      * Metodo main del thread per gestire la comunicazione con il client.
+     * 
+     * Contiene un selettore per differenziare tra un client CLI e un client GUI.
      */
     public void run() {
         LOGGER.setLevel(Level.FINE);
@@ -88,7 +94,6 @@ class ServerOneClient extends Thread {
             String clientType = (String) in.readObject();
 
             switch (clientType) {
-
                 case "cli":
                     handleCLIClient();
                     break;
@@ -97,29 +102,39 @@ class ServerOneClient extends Thread {
                     break;
             }
         } catch (IOException e) {
-            System.err.println("Socket not closed.");
+            LOGGER.severe("Socket not closed.");
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
-            LOGGER.severe("Terminating thread, wrong inputs from the client. ");
+            LOGGER.severe("Terminating thread, wrong inputs from the client.");
         }
     }
 
+    /**
+     * Gestisce la comunicazione con un client GUI.
+     * 
+     * La comunicazione con i client GUI avviene successivamente l'invio da parte
+     * del server delle tabelle SQL presenti. Successivamente il server attende le
+     * Request, espresse sottoforma di oggetti Request trasformati in Json. In base
+     * all'header della richiesta il server può chiamare le differenti operazioni
+     * disponibili.
+     */
     private void handleGUIClient() {
         try {
             out.writeObject("OK");
             List<String> tableStrings = retrieveTableStrings();
             out.writeObject(generateJsonFromTableStrings(tableStrings));
-            LOGGER.info("sent tables;");
+            LOGGER.info("Sent tables to GUI client;");
             while (true) {
-                LOGGER.info("new loop for the client");
+                if (shouldClose) {
+                    break;
+                }
+                LOGGER.info("GUI client entered new loop.");
                 String requestJson = (String) in.readObject();
-                System.err.println("client sent this: " + requestJson);
-                ObjectMapper objectMapper = new ObjectMapper();
                 Request request = objectMapper.readValue(requestJson, Request.class);
 
                 String header = request.getHeader();
                 Map<String, Object> data = request.getData();
-
+                
                 switch (header) {
                     case "LOAD_REQUEST":
                         String tableLoad = (String) data.get("table");
@@ -135,26 +150,29 @@ class ServerOneClient extends Thread {
                         String saveName = (String) data.get("saveName");
                         handleCalculateRequest(tableCalc, depth, distance, false, save, saveName);
                         break;
+                    case "CLOSE_REQUEST":
+                        shouldClose = true;
+                        break;
                     default:
                         LOGGER.info("Unknown request type.");
                         out.writeObject("ERROR");
                         break;
-
                 }
-
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
-
     }
 
+    /**
+     * Gestisce la comunicazione con un client CLI.
+     * 
+     * Questa funzione gestisce il flow di istruzioni da parte della CLI, terminando
+     * con lo switch tra le operazioni disponibili.
+     */
     private void handleCLIClient() {
         try {
             while (true) {
-
                 List<String> tables = retrieveTableStrings();
                 String table = loadTableFromCLIClient(tables);
                 if (table == null || shouldClose) {
@@ -181,12 +199,13 @@ class ServerOneClient extends Thread {
     }
 
     /**
-     * Carica i dati del database dopo aver ricevuto dal Client CLI il nome della
-     * table
-     * SQL dove sono contenuti i dati.
+     * Verifica che la tabella data in input tramite CLI è presente all'interno del
+     * database SQL, ritornando la tabella scelta.
      *
-     * @return l'istanza data popolata con i dati contenuti nel DB, o null se non è
-     *         possibile caricare i dati
+     * @param tableStrings Lista delle stringhe delle tabelle contenute nel database
+     *                     SQL.
+     * @return Il nome della tabella scelta o null se non è possibile caricare i
+     *         dati.
      * @throws IOException se si verifica un errore di I/O
      */
     private String loadTableFromCLIClient(List<String> tableStrings) throws IOException {
@@ -208,25 +227,38 @@ class ServerOneClient extends Thread {
                     out.writeObject("OK");
                     break;
                 } else {
-
+                    out.writeObject("Nome tabella non valido.");
                 }
             } catch (ClassNotFoundException e) {
                 LOGGER.warning("Invalid data received from client");
                 out.writeObject("Ricevuti dati invalidi.");
                 attempts++;
             }
-
         }
         if (chosenTable == null) {
-            out.writeObject("Dopo tre tentativi non è stato possibile caricare i dati. ");
+            out.writeObject("Dopo tre tentativi non è stato possibile caricare i dati.");
             return null;
         }
 
         return chosenTable;
     }
 
+    /**
+     * Gestisce una richiesta di caricamento di Dendrogramma del client.
+     * 
+     * Istanzia un oggetto Data e tramite HierarchicalClusterMiner deserializza il
+     * file dal nome dato in input, inviando in output il dendrogramma contenuto
+     * all'interno del file.
+     *
+     * @param table    Il nome della tabella SQL.
+     * @param fileName Il nome del file da caricare.
+     * @throws IOException            se si verifica un errore di I/O
+     * @throws ClassNotFoundException se la classe dell'oggetto caricato non viene
+     *                                trovata
+     */
     private void handleLoadRequest(String table, String fileName) throws IOException, ClassNotFoundException {
         try {
+            LOGGER.info("Handling loading request.");
             Data data = new Data(table);
 
             HierachicalClusterMiner clustering = HierachicalClusterMiner.load(fileName);
@@ -235,22 +267,38 @@ class ServerOneClient extends Thread {
                 out.writeObject("OK");
                 out.writeObject(clustering.toString(data));
             } else {
-                out.writeObject(
-                        "ERRORE: il dendrogramma non è stato costruito "
-                                + "dai dati contenuti nel database.");
+                out.writeObject("ERRORE: il dendrogramma non è stato costruito dai dati contenuti nel database.");
             }
-
         } catch (SQLException | EmptySetException | MissingNumberException | FileNotFoundException e) {
             out.writeObject(e.getMessage());
             e.printStackTrace();
         }
-
     }
 
+    /**
+     * Gestisce una richiesta di calcolo del dendrogramma dal client.
+     * 
+     * Istanzia un oggetto Data, istanzia un oggetto HierarchicalClusterMiner e
+     * procede a eseguire il processo di mining. In base ai valori booleani isCLI e
+     * save il metodo può procedere a salvare il dendrogramma appena creato. Nel
+     * caso della CLI il nome è chiesto in input, nel caso della GUI il nome è dato
+     * come parametro formale
+     *
+     * @param table       Il nome della tabella SQL.
+     * @param depth       La profondità del dendrogramma.
+     * @param distanceInt Il tipo di distanza.
+     * @param isCLI       Indica se la richiesta proviene da un client CLI.
+     * @param save        Indica se il risultato deve essere salvato.
+     * @param fileName    Il nome del file di salvataggio.
+     * @throws IOException            se si verifica un errore di I/O
+     * @throws ClassNotFoundException se il socket riceve in input una classe non
+     *                                aspettata dal client
+     */
     private void handleCalculateRequest(String table, int depth, int distanceInt, boolean isCLI, boolean save,
             String fileName)
             throws IOException, ClassNotFoundException {
         try {
+            LOGGER.info("Handling mining request.");
             Data data = new Data(table);
             HierachicalClusterMiner clustering = new HierachicalClusterMiner(depth);
             ClusterDistance distance = new AverageLinkDistance();
@@ -271,9 +319,9 @@ class ServerOneClient extends Thread {
                 if (isCLI) {
                     fileName = (String) in.readObject();
                     clustering.save(fileName);
-                } else if (save)
+                } else if (save) {
                     clustering.save(fileName);
-
+                }
             } catch (InvalidDepthException e) {
                 out.writeObject(e.getMessage());
                 e.printStackTrace();
@@ -286,7 +334,7 @@ class ServerOneClient extends Thread {
 
     /**
      * Recupera le stringhe delle tabelle dal database.
-     * 
+     *
      * @return Lista delle stringhe delle tabelle.
      */
     private List<String> retrieveTableStrings() {
@@ -303,28 +351,25 @@ class ServerOneClient extends Thread {
 
     /**
      * Genera una stringa JSON da una lista di stringhe delle tabelle.
-     * 
-     * @param stringheTabelle Lista delle stringhe delle tabelle.
+     *
+     * @param tableStrings Lista delle stringhe delle tabelle.
      * @return Stringa JSON che rappresenta le stringhe delle tabelle.
      */
     private String generateJsonFromTableStrings(List<String> tableStrings) {
-        ObjectMapper mapper = new ObjectMapper();
-        ArrayNode arrayNode = mapper.createArrayNode();
+        ArrayNode arrayNode = objectMapper.createArrayNode();
         for (String tableString : tableStrings) {
             arrayNode.add(tableString);
         }
 
-        ObjectNode jsonObject = mapper.createObjectNode();
+        ObjectNode jsonObject = objectMapper.createObjectNode();
         jsonObject.set("tables", arrayNode);
 
         String jsonString = "";
         try {
-            jsonString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonObject);
+            jsonString = objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonObject);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println(jsonString);
         return jsonString;
     }
-
 }

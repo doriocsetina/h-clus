@@ -38,19 +38,25 @@ public class TableData {
         this.db = db;
     }
 
+    /**
+     * Ottiene una lista di nomi di tabelle dal database.
+     *
+     * @return una lista di nomi di tabelle
+     * @throws SQLException se si verifica un errore durante l'esecuzione della query SQL
+     */
     public List<String> getTables() throws SQLException {
         String queryString = "SHOW TABLES";
-
+    
         List<String> tableStrings = new LinkedList<>();
-
+    
         try (PreparedStatement preparedStatement = db.getConnection().prepareStatement(queryString)) {
             ResultSet resultSet = preparedStatement.executeQuery();
-
+    
             while (resultSet.next()) {
                 int i = 1;
                 tableStrings.add(resultSet.getString(i++));
             }
-
+    
         } catch (DatabaseConnectionException e) {
             e.printStackTrace();
         }

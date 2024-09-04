@@ -1,14 +1,25 @@
 package client.gui;
 
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowAdapter;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * La classe GuiController gestisce l'interazione tra il modello e la vista.
+ */
 public class GuiController {
     private GuiModel model;
     private GuiView view;
 
+    /**
+     * Costruisce un nuovo GuiController con il modello e la vista specificati.
+     *
+     * @param model il modello da utilizzare
+     * @param view  la vista da utilizzare
+     */
     public GuiController(GuiModel model, GuiView view) {
         this.model = model;
         this.view = view;
@@ -17,11 +28,17 @@ public class GuiController {
         this.view.addLoadButtonListener(new LoadDendrogramButtonListener());
     }
 
+    /**
+     * Listener per il pulsante di connessione.
+     * 
+     * Il model esegue la chiamata di connessione al server, in caso la connessione
+     * va a buon fine vengono ricevute le tabelle SQL disponibili e successivamente
+     * creato il frame principale della vista.
+     */
     class ConnectButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-
                 model.connectToServer(
                         view.getIpAddress(),
                         Integer.parseInt(view.getPort()));
@@ -33,6 +50,7 @@ public class GuiController {
                 view.createAndShowMainGUI(tables);
                 view.addLoadButtonListener(new LoadDendrogramButtonListener());
                 view.addCalculateButtonListener(new CalculateDendrogramButtonListener());
+                view.addWindowListener(new ClosingWindowListener());
                 view.setErrorMessage("");
             } catch (IOException | ClassNotFoundException ex) {
                 view.setErrorMessage(ex.getMessage());
@@ -43,6 +61,11 @@ public class GuiController {
         }
     }
 
+    /**
+     * Listener per il pulsante di caricamento del dendrogramma.
+     * 
+     * Esegue tramite il modello una richiesta LOAD.
+     */
     class LoadDendrogramButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -52,6 +75,7 @@ public class GuiController {
                                 view.getTableString(),
                                 view.getFileNameString()));
                 view.setErrorMessage("");
+                view.setInfoMessage("");
             } catch (IOException | ClassNotFoundException ex) {
                 view.setErrorMessage(ex.getMessage());
                 ex.printStackTrace();
@@ -59,6 +83,12 @@ public class GuiController {
         }
     }
 
+    /**
+     * Listener per il pulsante di calcolo del dendrogramma.
+     * 
+     * Assegna un intero alla distanza selezionata dalla vista, verifica l'opzione
+     * di salvataggio e tramite il modello esegue una richiesta CALC.
+     */
     class CalculateDendrogramButtonListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -100,4 +130,19 @@ public class GuiController {
         }
     }
 
+    /**
+     * Listener per la chiusura dell'applicazione principale. 
+     * 
+     * Invia una richiesta di chiusura thread al server quando il client viene chiuso. 
+     */
+    class ClosingWindowListener extends WindowAdapter  {
+        @Override
+            public void windowClosing(WindowEvent e) {
+                try {
+                    model.sendCloseMessage();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+    }
 }
