@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","url":"allpackages-index.html"},{"l":"client.cli"},{"l":"client.gui"},{"l":"client.util"},{"l":"server"},{"l":"server.clustering"},{"l":"server.clustering.exceptions"},{"l":"server.data"},{"l":"server.database"},{"l":"server.database.exceptions"},{"l":"server.distance"},{"l":"shared"}]

@@ -1,0 +1,11 @@
+client.cli
+client.gui
+client.util
+server
+server.clustering
+server.clustering.exceptions
+server.data
+server.database
+server.database.exceptions
+server.distance
+shared
