@@ -1,0 +1,186 @@
+@startuml server
+package server {
+    class MultiServer {
+        +main(String[] args): void
+    }
+
+    class ServerOneClient {
+        -socket: Socket
+        -in: ObjectInputStream
+        -out: ObjectOutputStream
+        -shouldClose: boolean
+        +ServerOneClient(Socket s)
+        +run(): void
+        -handleGUIClient(): void
+        -handleCLIClient(): void
+        -loadTableFromCLIClient(List<String> tableStrings): String
+        -handleLoadRequest(String table, String fileName): void
+        -handleCalculateRequest(String table, int depth, int distanceInt, boolean isCLI, boolean save, String fileName): void
+        -retrieveTableStrings(): List<String>
+        -generateJsonFromTableStrings(List<String> tableStrings): String
+    }
+
+    MultiServer --> ServerOneClient
+}
+
+package server.data {
+    class Data {
+        - List<Example> data
+        - int numberOfExamples
+        + Data(String tableName)
+        + getNumberOfExamples(): int
+        + getExample(int exampleIndex): Example
+        + generateChecksum(): String
+        + distance(): double[][]
+        + toString(): String
+        + main(String[] args): void
+    }
+
+    class Example implements Iterable {
+        - List<Double> example
+        + Example()
+        + iterator(): Iterator<Double>
+        + add(Double v): void
+        + get(int index): Double
+        + getLength(): int
+        + distance(Example newE): double
+        + toString(): String
+    }
+}
+
+package server.clustering {
+    package server.clustering.exceptions {
+        exception InvalidSizeException {
+
+        }
+
+        exception InvalidDepthException {
+
+        }
+
+        exception DataNotMatchingException{
+
+        }
+    }
+    class HierachicalClusterMiner implements Serializable {
+        - Dendrogram dendrogram
+        - String dataChecksum
+        + HierachicalClusterMiner(int depth)
+        + load(String filename): HierachicalClusterMiner
+        + loadFromFile(FileInputStream inFile): HierachicalClusterMiner
+        + save(String fileName): void
+        + mine(Data data, ClusterDistance distance): void
+        + validateData(Data data): boolean
+        + toString(): String
+        + toString(Data data): String
+    }
+
+    class Cluster implements Iterable, Cloneable, Serializable {
+        - Set<Integer> clusteredData
+        + iterator(): Iterator<Integer>
+        + addData(int id): void
+        + getSize(): int
+        + clone(): Object
+        + mergeCluster(Cluster c): Cluster
+        + toString(): String
+        + toString(Data data): String
+    }
+
+    class ClusterSet implements Serializable {
+        - Cluster[] C
+        - int lastClusterIndex
+        + ClusterSet(int k)
+        + add(Cluster c): void
+        + getLength(): int
+        + get(int i): Cluster
+        + mergeClosestClusters(ClusterDistance distance, Data data): ClusterSet
+        + toString(): String
+        + toString(Data data): String
+    }
+
+    class Dendrogram implements Serializable {
+        - ClusterSet[] tree
+        + Dendrogram(int depth)
+        + setClusterSet(ClusterSet c, int level): void
+        + getClusterSet(int level): ClusterSet
+        + getDepth(): int
+        + toString(): String
+        + toString(Data data): String
+    }
+}
+
+package server.distance {
+    interface ClusterDistance{
+
+    + distance(Cluster c1, Cluster c2, Data d): double
+    }
+
+    class AverageLinkDistance implements ClusterDistance{
+        + distance(Cluster c1, Cluster c2, Data d): double
+    }
+
+    class SingleLinkDistance implements ClusterDistance{
+        + distance(Cluster c1, Cluster c2, Data d): double
+    }
+}
+
+package server.database {
+    package server.database.exceptions {
+        exception EmptySetException {}
+
+        exception DatabaseConnectionException {}
+
+        exception MissingNumberException {}
+    }
+    class DbAccess {
+        - String DRIVER_CLASS_NAME
+        - String DBMS
+        - String SERVER
+        - String DATABASE
+        - int PORT
+        - String USER_ID
+        - String PASSWORD
+        - Connection conn
+        + initConnection(): void
+        + getConnection(): Connection
+        + closeConnection(): void
+    }
+
+    class TableData {
+        +TableData(DbAccess db)
+        +getTables(): List<String>
+        +getDistinctTransactions(String table): List<Example>
+    }
+}
+
+package shared {
+    class Request {
+        +getHeader(): String
+        +getData(): Map<String, Object>
+    }
+}
+
+Data --> DbAccess : "uses"
+Data --> TableData : "uses"
+Data --> Example : "uses"
+Data --> InvalidSizeException : "throws"
+Data --> EmptySetException : "throws"
+Data --> MissingNumberException : "throws"
+ServerOneClient --> Data
+ServerOneClient --> HierachicalClusterMiner
+ServerOneClient --> DbAccess
+ServerOneClient --> TableData
+ServerOneClient --> Request
+Cluster --> Data : "uses"
+ClusterSet --> Cluster : "contains"
+ClusterSet --> ClusterDistance : "uses"
+ClusterSet --> Data : "uses"
+Dendrogram --> ClusterSet : "contains"
+Dendrogram --> Data : "uses"
+HierachicalClusterMiner --> Dendrogram : "uses"
+HierachicalClusterMiner --> Data : "uses"
+HierachicalClusterMiner --> ClusterDistance : "uses"
+HierachicalClusterMiner --> InvalidDepthException : "throws"
+
+
+@enduml

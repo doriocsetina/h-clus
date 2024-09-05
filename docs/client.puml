@@ -1,0 +1,120 @@
+@startuml client
+package client.gui {
+    class GuiController {
+        - GuiModel model
+        - GuiView view
+        + GuiController(GuiModel model, GuiView view)
+    }
+
+    GuiController ..> GuiModel : uses
+    GuiController ..> GuiView : uses
+
+    class ConnectButtonListener {
+        + actionPerformed(ActionEvent e)
+    }
+
+    class LoadDendrogramButtonListener {
+        + actionPerformed(ActionEvent e)
+    }
+
+    class CalculateDendrogramButtonListener {
+        + actionPerformed(ActionEvent e)
+    }
+
+    class ClosingWindowListener {
+        + windowClosing(WindowEvent e)
+    }
+
+    class GuiModel {
+        - ObjectOutputStream out;
+        - ObjectInputStream in;
+        - Socket socket;
+
+        - InetAddress address;
+        - int port; 
+        + boolean connectToServer(String ip, int port)
+        + String receiveJsonTables()
+        + String sendCalculateRequest(String table, int depth, int distance, boolean save, String saveName)
+        + String sendLoadRequest(String table, String fileName)
+        + sendCloseMessage()
+    }
+
+    class GuiView {
+        - JFrame loginFrame
+        - JTextField ipField
+        - JTextField portField
+        - JLabel infoMessage
+        - JLabel errorMessage
+        - JButton connectButton
+        - JFrame mainFrame
+        - JComboBox<String> availableTabsBox
+        - JTextField fileNameField
+        - JRadioButton loadFromServer
+        - JButton loadButton
+        - JTextField depthField
+        - JComboBox<String> distanceTypeBox
+        - JButton calculateButton
+        - JCheckBox saveCheckBox
+        - JTextField saveNameField
+        - JTextArea outputArea
+        + GuiView()
+        + void closeLoginFrame()
+        + void createAndShowMainGUI(List<String> tables)
+        + String getIpAddress()
+        + String getPort()
+        + String getTableString()
+        + String getFileNameString()
+        + boolean isLoadFromServer()
+        + String getDepthString()
+        + String getDistanceString()
+        + String getSaveFileString()
+        + boolean isSaving()
+        + void setErrorMessage(String message)
+        + void setInfoMessage(String message)
+        + void setOutputText(String text)
+        + void setSaveFileString(String text)
+        + void addConnectButtonListener(ActionListener listener)
+        + void addLoadButtonListener(ActionListener listener)
+        + void addCalculateButtonListener(ActionListener listener)
+        + void addSaveCheckBoxListener(ActionListener listener)
+        + void addWindowListener(WindowListener listener)
+    }
+
+    GuiController --> ConnectButtonListener : contains
+    GuiController --> LoadDendrogramButtonListener : contains
+    GuiController --> CalculateDendrogramButtonListener : contains
+    GuiController --> ClosingWindowListener : contains
+
+    ConnectButtonListener ..|> ActionListener
+    ConnectButtonListener ..> GuiModel : uses
+    LoadDendrogramButtonListener ..|> ActionListener
+    LoadDendrogramButtonListener ..> GuiModel : uses
+    CalculateDendrogramButtonListener ..|> ActionListener
+    CalculateDendrogramButtonListener ..> GuiModel : uses
+    ClosingWindowListener ..|> WindowAdapter
+    ClosingWindowListener ..> GuiModel : uses
+
+    GuiController ..> ActionEvent : uses
+    GuiController ..> WindowEvent : uses
+    ActionEvent ..> GuiView : uses
+    WindowEvent ..> GuiView : uses
+
+    
+}
+
+package client.cli {
+    class MainTest {
+        - ObjectOutputStream out
+        - ObjectInputStream in
+        + MainTest(String ip, int port) throws IOException
+        + int menu()
+        + void loadDataOnServer() throws IOException, ClassNotFoundException
+        + void loadDedrogramFromFileOnServer() throws IOException, ClassNotFoundException
+        + void mineDedrogramOnServer() throws IOException, ClassNotFoundException
+        + static void main(String[] args)
+    }
+
+    MainTest --> Keyboard : uses
+}
+
+@enduml
