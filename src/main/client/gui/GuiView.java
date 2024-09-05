@@ -26,7 +26,6 @@ public class GuiView {
     private JComboBox<String> availableTabsBox;
 
     private JTextField fileNameField;
-    private JRadioButton loadFromClient;
     private JRadioButton loadFromServer;
     private JButton loadButton;
 
@@ -117,13 +116,12 @@ public class GuiView {
         loadDataPanel.add(new JLabel("Nome file:"));
         loadDataPanel.add(fileNameField);
 
-        loadFromClient = new JRadioButton("Carica dal client");
         loadFromServer = new JRadioButton("Carica dal server");
         ButtonGroup loadGroup = new ButtonGroup();
         loadFromServer.setSelected(true);
-        loadGroup.add(loadFromClient);
+
         loadGroup.add(loadFromServer);
-        loadDataPanel.add(loadFromClient);
+        loadDataPanel.add(new JLabel());
         loadDataPanel.add(loadFromServer);
 
         loadButton = new JButton("Carica Dendrogramma");
