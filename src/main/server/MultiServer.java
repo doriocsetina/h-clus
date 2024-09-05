@@ -222,12 +222,13 @@ class ServerOneClient extends Thread {
                     break;
                 }
                 String tableName = (String) in.readObject();
-                if (tableStrings.contains(tableName)) {
+                if (tableStrings.contains(tableName.toLowerCase())) {
                     chosenTable = tableName;
                     out.writeObject("OK");
                     break;
                 } else {
                     out.writeObject("Nome tabella non valido.");
+                    attempts++;
                 }
             } catch (ClassNotFoundException e) {
                 LOGGER.warning("Invalid data received from client");
