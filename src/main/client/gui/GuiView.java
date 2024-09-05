@@ -116,11 +116,13 @@ public class GuiView {
         loadDataPanel.add(new JLabel("Nome file:"));
         loadDataPanel.add(fileNameField);
 
+        
         loadFromServer = new JRadioButton("Carica dal server");
         ButtonGroup loadGroup = new ButtonGroup();
         loadFromServer.setSelected(true);
-
+        
         loadGroup.add(loadFromServer);
+        loadDataPanel.add(new JLabel());
         loadDataPanel.add(new JLabel());
         loadDataPanel.add(loadFromServer);
 
