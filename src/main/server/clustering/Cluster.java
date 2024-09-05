@@ -9,7 +9,7 @@ import server.data.Data;
 
 /**
  * Classe che rappresenta il cluster dei vettori Example, salvando
- * all'interno di {@link Set<Integer> clusterData} le posizioni dei vettori Example all'interno
+ * all'interno di {@link clusterData} le posizioni dei vettori Example all'interno
  * del vettore Data che fanno parte del Cluster.
  * 
  * Contiene i metodi per aggiungere vettori al cluster e per operare il merge di due istanze Cluster.

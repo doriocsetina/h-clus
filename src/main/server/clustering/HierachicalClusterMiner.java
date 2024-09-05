@@ -106,7 +106,7 @@ public class HierachicalClusterMiner implements Serializable {
 	/**
 	 * Crea il livello base (livello 0) del dendrogramma che contiene l’istanze di
 	 * ClusterSet che rappresenta ogni esempio in un cluster separato; per tutti i
-	 * livelli successivi del dentrogramma (level>=1 e level <
+	 * livelli successivi del dentrogramma (level maggiore o uguale di 1 e level minore
 	 * dendrogram.getDepth()) costruisce l’istanza di ClusterSet che realizza la
 	 * fusione dei due cluster più vicini nella istanza del ClusterSet memorizzata
 	 * al livello level-1 del dendrogramma (usare mergeClosestClusters di
