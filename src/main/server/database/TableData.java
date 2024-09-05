@@ -54,7 +54,7 @@ public class TableData {
     
             while (resultSet.next()) {
                 int i = 1;
-                tableStrings.add(resultSet.getString(i++));
+                tableStrings.add(resultSet.getString(i++).toLowerCase());
             }
     
         } catch (DatabaseConnectionException e) {
