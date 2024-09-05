@@ -1,4 +1,6 @@
 @echo off
 cd /d "%~dp0"
 
-java -jar jars/GuiClient.jar
+java -jar jars/MainTest.jar localhost 8080
+
+pause
